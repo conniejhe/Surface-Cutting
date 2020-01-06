@@ -1,0 +1,45 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <!-- ================================================================== -->
+    <SourceProxy name="SurfaceCut" class="surfaceCut" label="Surface Cut">
+      <Documentation
+         long_help="uses implicit selection loop and vtkClipPolyData to extract
+         a user-defined region from the surface."
+         short_help="Clip the surface along circle of points.">
+      </Documentation>
+
+      <InputProperty
+         name="Input"
+	       port_index="0"
+         command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Set the source data set.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty
+         name="Selection"
+         port_index="1"
+         command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Dijkstra's loop.
+        </Documentation>
+      </InputProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
