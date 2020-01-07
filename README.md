@@ -93,4 +93,6 @@ All of the above plugins can be built using these commands:
  2. Type following series of commands: ccmake .. -> c -> g -> make
     1. will show EMPTY CACHE at first
  3. need to set ParaView_DIR: /export/bofur/che/paraview/paraview_build
- 4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5     
+ 4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
+ 
+These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
