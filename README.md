@@ -1,5 +1,15 @@
 # Surface-Cutting
 
+## Table of Contents ##
+- [Surface-Cutting](#surface-cutting)
+  * [Introduction](#introduction)
+  * [Plugin Overview](#plugin-overview)
+    + [SurfaceTracker-TextEntry](#surfacetracker-textentry)
+    + [SurfaceTracker-ManualSelection](#surfacetracker-manualselection)
+    + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
+    + [SurfaceCut-ConnectedComponents](#surfacecut-connectedcomponents)
+  * [Compiling Custom Plugins](#compiling-custom-plugins)
+
 ## Introduction ##
 This repository contains the source code for the surface cutting plugin project for Paraview. All plugins are developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
 
