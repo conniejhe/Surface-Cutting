@@ -159,6 +159,18 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
 
 }
 
+void vtkDijkstraGraphGeodesicPath1::GetCurvature() {
+  vtkDoubleArray* curvature_along_path = vtkDoubleArray::New()
+
+  // gets curvature values and stores in list (in order of vertices along path)
+  for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds; j++) {
+    double curv = this->Curvature->GetValue(this->IdList->GetId(j));
+    curvature_along_path->SetValue(j, curv);
+  }
+
+  return curvature_along_path;
+}
+
 void vtkDijkstraGraphGeodesicPath1::CalcMinMaxCurv() {
   double temp = 0.0;
   for (int i = 0; i < this->NumberOfVertices; i++) {
