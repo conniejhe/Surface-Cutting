@@ -277,6 +277,8 @@ void surfaceCut::cut(vtkPolyData* in, vtkPolyData* out, vtkIdList* list) {
 /* splits poly data into two components by deleting all cells along the
     user-specified path */
 void surfaceCut::splitComponents(vtkPolyData* in) {
+
+    // can delete this first for loop???
     for (vtkIdType i = 0; i < this->UserPoints->GetNumberOfIds(); i++) {
         vtkSmartPointer<vtkIdList> cellIdList = vtkSmartPointer<vtkIdList>::New();
         // get all cells that contain the current vertex

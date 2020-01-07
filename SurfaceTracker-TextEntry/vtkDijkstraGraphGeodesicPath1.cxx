@@ -123,6 +123,8 @@ int vtkDijkstraGraphGeodesicPath1::RequestData(
 
   }
 
+  cout << "bentlo" << endl;
+
   if (this->NumberOfVertices == 0)
   {
     return 0;
@@ -146,11 +148,30 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
     vtkSmartPointer<vtkPolyData>::New();
   curvOutput->ShallowCopy(curv->GetOutput());
 
+  //temp->SetNumberOfValues(this->NumberOfVertices);
   vtkDoubleArray* temp = vtkDoubleArray::SafeDownCast(curvOutput->GetPointData()->GetArray("Maximum_Curvature"));
+  //this->Curvature = curvOutput->GetPointData()->GetArray("Maximum_Curvature");
+  //this->Curvature = static_cast<vtkDoubleArray *>(
+    //curvOutput->GetPointData()->GetArray("Mean_Curvature"));
+  //for debugging
   for (int i = 0; i < this->NumberOfVertices; i++) {
     this->Curvature->SetValue(i, temp->GetValue(i));
   }
+  //temp->Delete();
 
+}
+
+vtkDoubleArray* vtkDijkstraGraphGeodesicPath1::GetCurvature() {
+  vtkDoubleArray* curvature_along_path = vtkDoubleArray::New();
+  curvature_along_path->SetNumberOfValues(this->IdList->GetNumberOfIds());
+
+  // gets curvature values and stores in list (in order of vertices along path)
+  for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds(); j++) {
+    double curv = this->Curvature->GetValue(this->IdList->GetId(j));
+    curvature_along_path->SetValue(j, curv);
+  }
+
+  return curvature_along_path;
 }
 
 void vtkDijkstraGraphGeodesicPath1::CalcMinMaxCurv() {
@@ -358,6 +379,15 @@ void vtkDijkstraGraphGeodesicPath1::TraceShortestPath(
   points->Delete();
   outPoly->SetLines(lines);
   lines->Delete();
+
+  vtkSmartPointer<vtkDoubleArray> curvature = GetCurvature();
+  cout << "print curvature" << endl;
+  for (int i = 0; i < curvature->GetNumberOfTuples(); i++) {
+    cout << curvature->GetValue(i) << endl;
+  }
+  curvature->SetName("Curvature");
+  outPoly->GetFieldData()->AddArray(curvature);
+
 }
 
 //----------------------------------------------------------------------------

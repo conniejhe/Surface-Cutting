@@ -12,7 +12,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDijkstraGraphGeodesicPath1.h"
+#include "../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"

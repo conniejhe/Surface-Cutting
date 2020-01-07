@@ -88,6 +88,8 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkPoints>::New();
   selectionPoints->SetNumberOfPoints(this->UserPoints->GetNumberOfIds());
 
+  // extract x,y,z point coordinates from point IDs and store in
+  // selectionPoints
   vtkSmartPointer<vtkPoints> temp = input->GetPoints();
   temp->GetPoints(this->UserPoints, selectionPoints);
 

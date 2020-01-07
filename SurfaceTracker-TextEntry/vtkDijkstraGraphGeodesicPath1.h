@@ -147,6 +147,8 @@ protected:
 
   void GenCurvature(vtkPolyData *);
 
+  vtkDoubleArray* GetCurvature();
+
   void CalcMinMaxCurv();
 
   void Initialize( vtkDataSet *inData );
