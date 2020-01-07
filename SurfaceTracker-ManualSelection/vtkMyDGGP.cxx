@@ -1,3 +1,10 @@
+/*=========================================================================
+  Program:   Paraview
+  Module:  vtkMyDGGP.cxx
+  Language:  C++
+  Author: Connie He
+=========================================================================*/
+
 #include "vtkMyDGGP.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"

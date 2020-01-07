@@ -1,3 +1,18 @@
+/*=========================================================================
+  Program:   Paraview
+  Module:  vtkMyDGGP.h
+  Language:  C++
+  Author: Connie He
+=========================================================================*/
+
+/**
+ * Takes as input a polygonal mesh and a set of points to find the shortest
+ * path, calculated using Dijkstra's algorithm. There are three modes for this
+ * filter: geodesic, gyrus, and sulcus.
+ * The output of the filter is a set of lines describing the shortest path
+ * along the set of points.
+*/
+
 #ifndef __vtkMyDGGP_h
 #define __vtkMyDGGP_h
 
