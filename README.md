@@ -3,7 +3,7 @@
 ## Table of Contents ##
 - [Surface-Cutting](#surface-cutting)
   * [Introduction](#introduction)
-  * [Plugin Overview](#plugin-overview)
+  * [Plugins Overview](#plugins-overview)
     + [SurfaceTracker-TextEntry](#surfacetracker-textentry)
     + [SurfaceTracker-ManualSelection](#surfacetracker-manualselection)
     + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
@@ -21,7 +21,7 @@ The surface cutting project consists of two different parts (and hence two main 
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
   2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object. Currently, there are two different implementations of this feature which are described in greater detail below.
 
-## Plugin Overview ##
+## Plugins Overview ##
 Each plugin consists of (at minimum) four different files:
   1. Source code (.cxx file) for the filter 
   2. Source code header (.h)
