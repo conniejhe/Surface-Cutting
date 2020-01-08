@@ -13,4 +13,4 @@ include(ParaViewPlugins)
 
 ADD_PARAVIEW_PLUGIN(MyDijkstra "1.0"
   SERVER_MANAGER_XML vtkMyDGGP.xml
-  SERVER_MANAGER_SOURCES vtkMyDGGP.cxx vtkDijkstraGraphGeodesicPath1.cxx)
+  SERVER_MANAGER_SOURCES vtkMyDGGP.cxx)

@@ -133,10 +133,6 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   }
   cout << "Drew Path." << endl;
 
-/*  for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds(); j++) {
-    cout << this->IdList->GetId(j) << endl;
-  }*/https://vtk.org/doc/nightly/html/classvtkFieldData.html
-
   vtkSmartPointer<vtkCleanPolyData> cleaner =
     vtkSmartPointer<vtkCleanPolyData>::New();
   cleaner->PointMergingOn();
@@ -166,12 +162,3 @@ void vtkMyDGGP::PrintSelf(ostream& os, vtkIndent indent) {
   os << indent << "User Selected Points: " << this->UserPoints << endl;
   os << indent << "IdList: " << this->IdList << endl;
 }
-
-/* vtkSmartPointer<vtkSelectPolyData> loop =
-  vtkSmartPointer<vtkSelectPolyData>::New();
-loop->SetInputData(input);
-loop->SetLoop(selectionPoints);
-loop->GenerateSelectionScalarsOff();
-loop->SetSelectionModeToClosestPointRegion();
-
-appender->AddInputData(loop->GetOutput()); */

@@ -123,8 +123,6 @@ int vtkDijkstraGraphGeodesicPath1::RequestData(
 
   }
 
-  cout << "bentlo" << endl;
-
   if (this->NumberOfVertices == 0)
   {
     return 0;
@@ -157,7 +155,6 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
   for (int i = 0; i < this->NumberOfVertices; i++) {
     this->Curvature->SetValue(i, temp->GetValue(i));
   }
-  //temp->Delete();
 
 }
 
@@ -357,6 +354,8 @@ void vtkDijkstraGraphGeodesicPath1::TraceShortestPath(
   vtkIdType v = endv;
   double pt[3];
   vtkIdType id;
+
+  // Note: IdList is in reverse (from end to start) because we are backtracing
   while (v != startv)
   {
     IdList->InsertNextId(v);
@@ -380,8 +379,20 @@ void vtkDijkstraGraphGeodesicPath1::TraceShortestPath(
   outPoly->SetLines(lines);
   lines->Delete();
 
+  vtkSmartPointer<vtkDoubleArray> vertices = vtkSmartPointer<vtkDoubleArray>::New();
+  vertices->SetNumberOfValues(this->IdList->GetNumberOfIds());
+
+  cout << "printing Id list" << endl;
+  for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds(); j++) {
+    vertices->SetValue(j, this->IdList->GetId(j));
+    cout << this->IdList->GetId(j) << endl;
+  }
+
+  vertices->SetName("Vertex Id List");
+  outPoly->GetFieldData()->AddArray(vertices);
+
   vtkSmartPointer<vtkDoubleArray> curvature = GetCurvature();
-  cout << "print curvature" << endl;
+  cout << "printing curvature" << endl;
   for (int i = 0; i < curvature->GetNumberOfTuples(); i++) {
     cout << curvature->GetValue(i) << endl;
   }
