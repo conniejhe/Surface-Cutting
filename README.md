@@ -59,7 +59,8 @@ This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. Th
   - *property panel*: 
     - set line type (geodesic, gyrus, and sulcus)  
     
-  **Output**: A set of lines corresponding to the curve generated to connect the set of points.
+  **Output**: A set of lines corresponding to the curve generated to connect the set of points.  
+  
 **Notes**: 
  - This is supposed to work on a string of consecutive points (not just two points) so it is better than the previous method in that way. 
  - If you want to connect different segments using two different modes (geodesicm gyrus, and sulcus), you will need to use the filter twice on two different extracted point selections and then combine them later one with the "Append datasets" filter. 
