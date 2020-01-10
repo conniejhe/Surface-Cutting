@@ -1,0 +1,252 @@
+ 
+BW Curvature (ctype, ndepth, dx, dy, dz)
+
+1. if surface empty return error
+2. if ctype not max,min,mean,gauss return error
+
+//-------------------------------
+Curvature_Generation
+
+1.  if (ndepth < 1 or ndepth > 1000) // ensure that ndepth isn't too large or too small, set a default value in case
+2.     ndepth = 2
+3.  genNeighborhoods(ndepth)
+4.  if no neighborhoods return error
+5.  if no unit normals
+6.     generate unit normals
+7.         if still no unit normals return error
+8.  mCurvature.setDim(mNumVert)
+9.  mCurvature = 0
+10. maxneighborhoods = 0
+11. set maxneighborhoods
+
+//-------------------------------
+Initialize
+
+Array1D<float> h(maxn);
+Array1D<float> u(maxn);
+Array1D<float> v(maxn);
+Array1D<float> uu(maxn);
+Array1D<float> vv(maxn);
+Array1D<float> two_uv(maxn);
+float tmp[3],U[3][3],BU[3],work[3],workc[5];
+float rval;
+
+// these are all for lin alg calculations later on
+int   IPIV[4];
+float C[2][2],W[2];
+char  JOBZ, UPLO;
+int   INFO,  LDA, LDB, LWORK, N, NRHS;
+int   LDC, LWORKC, NC;
+int   i,j;
+
+//-------------------------------
+Big_ass_for_loop (Hamann's Algorithm)
+
+1. for pindx from 0 to mNumVert do
+2.    double a,b,c,d
+3.    Point b1,b2,b3
+4.    int num_nei = mNbhd[pindx].numNeighbors()
+//----
+5.    double ptx, pty, ptz // extract x, y, z coordinate values?
+6.    ptx = mVert[pindx].y() * dx // dx, dy, and dz are by default 1.0
+7.    pty = mVert[pindx].x() * dy
+8.    ptz = mVert[pindx].z() * dz
+//----
+9.    Point pp = new Point(ptx, pty, ptz)
+10.   Point nn = mUNorm[pindx] // nn is unit normal at point
+11.   Surface::getPlane(a,b,c,d,pp,nn)
+12.   Surface::getBasisVectors(b1,b2,b3,nn)
+//----
+13.   double nx = nn.x()
+14.   double ny = nn.y()
+15.   double nz = nn.z()
+//----
+16.   for i from 0 to num_neighbors
+17.       nei = mNbhd[pindx].getNeighbor(i)
+18.       if (nei < 0) continue
+19.       double px = mVert[nei].x() * dx
+20.       double py = mVert[nei].x() * dy
+21.       double pz = mVert[nei].x() * dz
+//----
+22.       h[i] = a*px + b*py + c*pz + d // distance from point (neighbor) to tangent plane fit to original point
+23.       tmp[0] = px - h[i] * nx - ptx // neighboring point projected onto tangent plane - original point (this vector is in plane)
+24.       tmp[1] = py - h[i] * ny - pty
+25.       tmp[2] = pz - h[i] * nz - ptz   
+//----
+26.       u[i] = tmp[0]*b1.x()+tmp[1]*b1.y()+tmp[2]*b1.z()
+27.       v[i] = tmp[0]*b2.x()+tmp[1]*b2.y()+tmp[2]*b2.z()
+//----
+28.       two_uv[i] = 2.0*u[i]*v[i]
+29.       uu[i] = u[i]*u[i]
+30.       vv[i] = v[i]*v[i]
+//----
+31.    initialize BU and U
+32.    for i from 0 to num_neighbors
+33.       U[0][0] += (uu[i]*uu[i])
+34.       U[0][1] += (uu[i]*two_uv[i])
+35.       U[0][2] += (uu[i]*vv[i])
+36.       U[1][1] += (two_uv[i]*two_uv[i])
+37.       U[1][2] += (two_uv[i]*vv[i])
+38.       U[2][2] += (vv[i]*vv[i])
+39.       BU[0]   += (uu[i]*2.0*h[i])
+40.       BU[1]   += (two_uv[i]*2.0*h[i])
+41.       BU[2]   += (vv[i]*2.0*h[i])
+42.    U[1][0] = U[0][1]
+43.    U[2][0] = U[0][2]
+44.    U[2][1] = U[1][2]
+//----
+Compute factorization of real symmetric matrix A into A = L*D*L*T where L is lower triangular matrix, D is symmetric and block-diagonal
+45.    UPLO = 'L' // store upper or lower
+46.    INFO = 1   // successful exit or not
+47.    LDA = 3    // leading dimension of array A
+48.    LDB = 3    // leading dimension of array B
+49.    LWORK = 3  // length of work
+50.    N = 3      // order of matrix
+51.    NRHS = 1   // the number of right hand sides (i.e. number of cols of matrix B)
+52.    ssytrf_(&UPLO, &N, (float*)U, &LDA, IPIV, work, &LWORK, &INFO)
+        // function definition: ssytrf(UPLO, N, A, LDA, IPIV, WORK, LWORK, INFO)
+//----
+Solve system of linear equations to obtain shape operator
+53.    if INFO is 0 
+54.       ssytrs_(&UPLO, &N, &NRHS, (float*)U, &LDA, IPIV, BU, &LDB , &INFO)
+          // function definiton: ssytrs(UPLO, N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+55.       C[0][0] = BU[0] // the solution gets stored in BU -> create matrix C which is shape operator
+56.       C[0][1] = BU[1]
+57.       C[1][0] = BU[1]
+58.       C[1][1] = BU[2]
+//----
+Extract eigenvalues from matrix C
+59.       JOBZ = 'N'         // 'N' = compute eigenvalues only, 'V' = eigenvalues and vectors
+60.       LDC = 2            // leading dimension of matrix C
+61.       NC = 2             // order of matrix C
+62.       LWORKC = 3*NC - 1  // the length of array work = 5
+63.       ssyev_(&JOBZ, &UPLO, &NC, (float*)C, &LDC, W, workc, &LWORKC, &INFO)
+            // function definition: ssyev(JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO)
+            // eigenvalues are stored in W upon exit (in ascending order)
+//---
+Return correct curvature based on principal curvatures and user-selection
+64.       switch(curvature type)
+65.          case Min_Curvature
+66.             if abs(W[0]) less than abs(W[1])
+67.                rval = W[0]
+68.             else rval = W[1]
+69.          case MaxCurvature
+70.             if abs(W[0]) greater than abs(W[1])
+71.                rval = W[0]
+72.             else rval = W[1]
+73.          case MeanCurvature
+74.             rval = (W[0] + W[1])/2
+75.          case GaussCurvature
+76.             rval = W[0] * W[1]
+77.    rval = min(MAX_CURV, rval) // make sure you preserve signs though; MAX_CURV = 20
+78.    mCurvature[pindx] = -rval // negative because we changed signs???
+
+Generate Unit Normals ()
+
+1.  if no normals
+2.     generate normals
+3.  mUNorm.setDim(mNumVert)
+4.  for i from 0 to mNumVert
+5.     if mNorm[i].norm() is not 0
+6.        mUNorm[i] = mNorm[i]/(mNorm[i].norm()) // just make a unit vector
+7.     else
+8.        mUNorm[i] = mNorm[i]
+
+Generate Normals()
+
+//-------------------------------
+Initialize
+
+1.  if mNorm.getNelm() is not mNumVert
+2.     mNorm.SetDim(mNumVert)
+3.  for i from 0 to mNumVert
+4.     mNorm[i].set(0, 0, 0) // initialize all normals to zero vector
+//-------------------------------
+Calculate Normals: Iterate through each triangle and accumulate the contribution from that triangle to each of its vertices
+
+1.  for i from 0 to mNumPoly
+2.     mNorm[mFacet[i][0]] += (mVert[mFacet[i][1]]-mVert[mFacet[i][0]]).cross(mVert[mFacet[i][2]]-mVert[mFacet[i][0]])
+        // mFacet[i][0] will extract the first vertex of the ith triangle (PV has a cell list)
+        // mVert[mFacet[i][1]] will get the x, y, z coordinates of this vertex
+3.     mNorm[mFacet[i][1]] += (mVert[mFacet[i][2]]-mVert[mFacet[i][1]]).cross(mVert[mFacet[i][0]]-mVert[mFacet[i][1]])
+4.     mNorm[mFacet[i][2]] += (mVert[mFacet[i][0]]-mVert[mFacet[i][2]]).cross(mVert[mFacet[i][1]]-mVert[mFacet[i][2]])
+//---
+1.  for i from 0 to mNumVert
+2.     mNorm[i] = mNorm[i]/6.0
+
+Cross Product (Point p1, Point p2)
+
+1.  Point temp = new Point()
+2.  temp.mX = p1.mY * p2.mZ - p1.mZ * p2.mY
+3.  temp.mY = p1.mZ * p2.mX - p1.mX * p2.mZ
+4.  temp.mZ = p1.mX * p2.mY - p1.mY * p2.mX
+5.  return temp
+
+Get Plane (double &A, double &B, double &C, double &D, Point p, Point n)
+1.  A = n.x()
+2.  B = n.y()
+3.  C = n.z()
+4.  D = -((n.x())*(p.x())+(n.y())*(p.y())+(n.z())*(p.z()))
+
+Get Basis Vectors(Point &b1, Point &b2, Point &b3, const Point &n) // need to run through math, pretty sure its just GS?
+//-------------------------------
+Initialize
+1.  double b1x, b1y, b1z
+2.  double b2x, b2y, b2z
+3.  double b3x, b3y, b3z
+
+//-------------------------------
+Determine b1 by finding an orthogonal vector to n
+1.  if abs(n.x()) greater than tolerance // tolerance defined to be 0.0001
+2.     b1x = -1.0/n.x() * (n.y()+n.z())
+3.     b1y = b1z = 1.0
+4.  else if abs(n.y()) greater than tolerance
+5.     b1x = b1z = 1.0
+6.     b1y = -1.0/n.y() * (n.x()+n.z())
+7.  else if abs(n.z()) greater than tolerance
+8.     b1x = b1y = 1.0
+9.     b1z = -1.0/n.z() * (n.x()+n.y())
+
+//-------------------------------
+Set b3 to normal of plane and compute b2 by taking cross product of b1 and b3 -> Normalize everything
+1.  mag = sqrt(b1x*b1x+b1y*b1y+b1z*b1z)
+2.  if mag is 0.0
+3.     set mag to 1.0
+4.  b1x /= mag
+5.  b1y /= mag
+6.  b1z /= mag
+//---
+7.  b3x = n.x()
+8.  b3y = n.y()
+9.  b3z = n.z()
+//---
+10. b2x = b3y*b1z-b1y*b3z
+11. b2y = b3z*b1x-b3x*b1z
+12. b2z = b3x*b1y-b3y*b1x
+//---
+13. mag = sqrt(b2x*b2x+b2y*b2y+b2z*b2z)
+14. if mag is 0.0
+15.    mag = 1.0
+16. b2x /= mag
+17. b2y /= mag
+18. b2z /= mag
+//---
+19. b1.set(b1x,b1y,b1z)
+20. b2.set(b2x,b2y,b2z)
+21. b3.set(b3x,b3y,b3z)
+
+
+KEY
+num_nei -> number of neighborhoods
+mNumVert -> number of vertices
+getNelm -> get number of elements
+mNumPoly -> number of polygons on surface (i.e. triangles => cells in PV)
+mFacet -> stores all the triangles
+
+
+QUESTIONS
+What is Nbhd?
+What is pindx -> point index?
+What does getPlane do?
+ - a, b, c, d are parameters of plane by plane equation
+What does getBasisVectors do?

@@ -1,0 +1,21 @@
+ 
+// W - Principle Curvatures
+// 2 PCs, PC1 --> W[0] and PC2 --> W[1]
+
+//------------------------------
+MinCurvature
+1. Select minimum of PC1, PC2
+
+MaxCurvature
+1. Select maximum of PC1, PC2
+
+MeanCurvature
+1. Select mean of PC1, PC2
+2.		(PC1 + PC2)/2.0
+
+GaussCurvature
+1. return PC1*PC2
+//------------------------------
+// Calculates Principle Curvatures using SSYEV from
+// (LAPACK --> Linear Algebra PACKage). ssyev
+// computes eigenvalues.
