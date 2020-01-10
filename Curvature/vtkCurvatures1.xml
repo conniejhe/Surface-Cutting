@@ -1,6 +1,6 @@
-<SourceProxy class="vtkCurvatures"
-             label="Curvature"
-             name="Curvatures">
+<SourceProxy class="vtkCurvatures1"
+             label="Curvature1"
+             name="Curvatures1">
   <Documentation long_help="This filter will compute the Gaussian or mean curvature of the mesh at each point."
                  short_help="Compute the curvature at each point.">The
                  Curvature filter computes the curvature at each point in a

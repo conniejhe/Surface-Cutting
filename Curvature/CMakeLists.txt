@@ -12,5 +12,5 @@ include(ParaViewPlugins)
 # this plugin can be loaded on the server side
 
 ADD_PARAVIEW_PLUGIN(myCurvatureFilter "1.0"
-  SERVER_MANAGER_XML myCurvature.xml
-  SERVER_MANAGER_SOURCES myCurvature.cxx)
+  SERVER_MANAGER_XML vtkCurvatures1.xml
+  SERVER_MANAGER_SOURCES vtkCurvatures1.cxx)

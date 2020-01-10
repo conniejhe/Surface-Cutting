@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCurvatures.h
+  Module:    vtkCurvatures1.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 /**
- * @class   vtkCurvatures
+ * @class   vtkCurvatures1
  * @brief   compute curvatures (Gauss and mean) of a Polydata object
  *
- * vtkCurvatures takes a polydata input and computes the curvature of the
+ * vtkCurvatures1 takes a polydata input and computes the curvature of the
  * mesh at each point. Four possible methods of computation are available :
  *
  * Gauss Curvature
@@ -61,28 +61,26 @@
  *
 */
 
-#ifndef myCurvature_h
-#define myCurvature_h
+#ifndef vtkCurvatures1_h
+#define vtkCurvatures1_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "ADL/Lapack.h"
 
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
-class VTKFILTERSGENERAL_EXPORT myCurvature : public vtkPolyDataAlgorithm
+class VTK_EXPORT vtkCurvatures1 : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(myCurvature,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCurvatures1,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with curvature type set to Gauss
    */
-  static myCurvature *New();
+  static vtkCurvatures1 *New();
 
   //@{
   /**
@@ -115,7 +113,8 @@ public:
   //@}
 
 protected:
-  myCurvature();
+  vtkCurvatures1();
+  ~vtkCurvatures1() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
@@ -146,8 +145,8 @@ protected:
   vtkTypeBool InvertMeanCurvature;
 
 private:
-  myCurvature(const myCurvature&) = delete;
-  void operator=(const myCurvature&) = delete;
+  vtkCurvatures1(const vtkCurvatures1&) = delete;
+  void operator=(const vtkCurvatures1&) = delete;
 
 };
 
