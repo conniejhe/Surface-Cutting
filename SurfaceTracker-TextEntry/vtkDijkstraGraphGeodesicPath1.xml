@@ -52,10 +52,25 @@
           <Entry value="2" text="Gyrus"/>
         </EnumerationDomain>
         <Documentation>
-          This propery specifies which type of curvature to compute.
+          This propery specifies which type of curve to draw.
         </Documentation>
       </IntVectorProperty>
 
+      <IntVectorProperty
+         name="CurvatureType"
+         command="SetCurvatureType"
+         number_of_elements="1"
+         default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="Gauss"/>
+         <Entry value="1" text="Mean"/>
+         <Entry value="2" text="Maximum"/>
+         <Entry value="3" text="Minimum"/>
+       </EnumerationDomain>
+       <Documentation>
+         This propery specifies which type of curve to draw.
+       </Documentation>
+     </IntVectorProperty>
 
    </SourceProxy>
  </ProxyGroup>

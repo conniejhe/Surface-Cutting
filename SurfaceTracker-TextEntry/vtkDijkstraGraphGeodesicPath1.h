@@ -44,6 +44,11 @@ class vtkIdList;
 #define VTK_LINE_SULCUS 1
 #define VTK_LINE_GYRUS 2
 
+#define VTK_CURVATURE_GAUSS 0
+#define VTK_CURVATURE_MEAN  1
+#define VTK_CURVATURE_MAXIMUM 2
+#define VTK_CURVATURE_MINIMUM 3
+
 class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath1 :
                            public vtkGraphGeodesicPath
 {
@@ -73,6 +78,25 @@ public:
   void SetLineTypeToGyrus() {
     this->SetLineType(VTK_LINE_GYRUS);
   }
+
+  //@{
+  /**
+   * Set/Get Curvature type
+   * VTK_CURVATURE_GAUSS: Gaussian curvature, stored as
+   * DataArray "Gauss_Curvature"
+   * VTK_CURVATURE_MEAN : Mean curvature, stored as
+   * DataArray "Mean_Curvature"
+   */
+  vtkSetMacro(CurvatureType,int);
+  vtkGetMacro(CurvatureType,int);
+  void SetCurvatureTypeToGaussian()
+  { this->SetCurvatureType(VTK_CURVATURE_GAUSS); }
+  void SetCurvatureTypeToMean()
+  { this->SetCurvatureType(VTK_CURVATURE_MEAN); }
+  void SetCurvatureTypeToMaximum()
+  { this->SetCurvatureType(VTK_CURVATURE_MAXIMUM); }
+  void SetCurvatureTypeToMinimum()
+  { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
 
   //@{
   /**
@@ -186,6 +210,7 @@ protected:
   double minCurv;
 
   int LineType;
+  int CurvatureType;
 
 private:
   vtkDijkstraGraphGeodesicPath1(const vtkDijkstraGraphGeodesicPath1&) = delete;

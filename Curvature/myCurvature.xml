@@ -1,0 +1,47 @@
+<SourceProxy class="vtkCurvatures"
+             label="Curvature"
+             name="Curvatures">
+  <Documentation long_help="This filter will compute the Gaussian or mean curvature of the mesh at each point."
+                 short_help="Compute the curvature at each point.">The
+                 Curvature filter computes the curvature at each point in a
+                 polygonal data set. It fits a quadratic function or tangent plane
+                 to each vertex and uses the resultant shape operator to compute
+                 the principal curvatures, which can be used to calculate the
+                 Gaussian and Mean curvatures; the type can be selected from the
+                 Curvature type menu button.</Documentation>
+  <InputProperty command="SetInputConnection"
+                 name="Input">
+    <ProxyGroupDomain name="groups">
+      <Group name="sources" />
+      <Group name="filters" />
+    </ProxyGroupDomain>
+    <DataTypeDomain name="input_type">
+      <DataType value="vtkPolyData" />
+    </DataTypeDomain>
+    <Documentation>This property specifies the input to the Curvature
+    filter.</Documentation>
+  </InputProperty>
+  <IntVectorProperty command="SetInvertMeanCurvature"
+                     default_values="0"
+                     name="InvertMeanCurvature"
+                     number_of_elements="1">
+    <BooleanDomain name="bool" />
+    <Documentation>If this property is set to 1, the mean curvature
+    calculation will be inverted. This is useful for meshes with
+    inward-pointing normals.</Documentation>
+  </IntVectorProperty>
+  <IntVectorProperty command="SetCurvatureType"
+                     default_values="0"
+                     name="CurvatureType"
+                     number_of_elements="1">
+    <EnumerationDomain name="enum">
+      <Entry text="Gaussian" value="0" />
+      <Entry text="Mean" value="1" />
+      <Entry text="Maximum" value="1" />
+      <Entry text="Minimum" value="1" />
+    </EnumerationDomain>
+    <Documentation>This property specifies which type of curvature to
+    compute.</Documentation>
+  </IntVectorProperty>
+  <!-- End Curvatures -->
+</SourceProxy>

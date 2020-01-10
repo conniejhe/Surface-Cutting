@@ -8,7 +8,6 @@
   This class is not mature enough to enter the official VTK release.
 =========================================================================*/
 #include "vtkDijkstraGraphGeodesicPath1.h"
-
 #include "vtkCellArray.h"
 #include "vtkDijkstraGraphInternals.h"
 #include "vtkExecutive.h"
@@ -22,18 +21,30 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCurvatures.h"
+#include "../Curvature/myCurvature.h"
+#include <string>
+
+using std::string;
 
 #define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath1);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath1,RepelVertices,vtkPoints);
+
+// lapack routines for curvature stuff
+extern "C" {
+  extern void ssytrf_(char *uplo, int *n, float *a, int *lda, int *ipiv,
+		      float *work, int *lwork, int *info);
+  extern void ssytrs_(char *uplo, int *n, int *nrhs, float *a, int *lda,
+		      int *ipiv, float *b, int *ldb, int *info);
+  extern void ssyev_(char *jobz, char *uplo, int *n, float *a, int *lda,
+		     float *w, float *work, int *lwork, int *info);
+};
 
 //----------------------------------------------------------------------------
 vtkDijkstraGraphGeodesicPath1::vtkDijkstraGraphGeodesicPath1()
 {
   this->IdList = vtkIdList::New();
   this->Curvature = vtkDoubleArray::New();
-  //this->Curvature = new double[1000];
   this->Internals = new vtkDijkstraGraphInternals;
   this->StopWhenEndReached = 0;
   this->UseScalarWeights = 0;
@@ -43,6 +54,7 @@ vtkDijkstraGraphGeodesicPath1::vtkDijkstraGraphGeodesicPath1()
   this->maxCurv = -1E20;
   this->minCurv = 1E20;
   this->LineType = 0;
+  this->CurvatureType = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -134,9 +146,24 @@ int vtkDijkstraGraphGeodesicPath1::RequestData(
 }
 
 void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
-  vtkSmartPointer<vtkCurvatures> curv =
-    vtkSmartPointer<vtkCurvatures>::New();
+  string curvArray[4] = {"Gauss_Curvature", "Mean_Curvature", "Maximum_Curvature", "Minimum_Curvature"};
+  vtkSmartPointer<myCurvature> curv =
+    vtkSmartPointer<myCurvature>::New();
   curv->SetInputData(in);
+  switch(CurvatureType) {
+    case 0:
+      curv->SetCurvatureTypeToGaussian();
+      break;
+    case 1:
+      curv->SetCurvatureTypeToMean();
+      break;
+    case 2:
+      curv->SetCurvatureTypeToMaximum();
+      break;
+    case 3:
+      curv->SetCurvatureTypeToMinimum();
+  }
+
   curv->SetCurvatureTypeToMaximum();
   curv->Update();
 
@@ -146,11 +173,11 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
     vtkSmartPointer<vtkPolyData>::New();
   curvOutput->ShallowCopy(curv->GetOutput());
 
-  //temp->SetNumberOfValues(this->NumberOfVertices);
-  vtkDoubleArray* temp = vtkDoubleArray::SafeDownCast(curvOutput->GetPointData()->GetArray("Maximum_Curvature"));
-  //this->Curvature = curvOutput->GetPointData()->GetArray("Maximum_Curvature");
-  //this->Curvature = static_cast<vtkDoubleArray *>(
-    //curvOutput->GetPointData()->GetArray("Mean_Curvature"));
+  string c = curvArray[CurvatureType];
+  char char_array[c.length() + 1];
+  strcpy(char_array, c.c_str());
+
+  vtkDoubleArray* temp = vtkDoubleArray::SafeDownCast(curvOutput->GetPointData()->GetArray(char_array));
   //for debugging
   for (int i = 0; i < this->NumberOfVertices; i++) {
     this->Curvature->SetValue(i, temp->GetValue(i));
