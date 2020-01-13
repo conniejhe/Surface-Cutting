@@ -58,6 +58,12 @@
 #define __vtkCurvatures1_h
 
 #include "vtkPolyDataAlgorithm.h"
+#include <vector>
+#include <tuple>
+
+using std::vector;
+using std::tuple;
+class vtkIdList;
 
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
@@ -120,10 +126,22 @@ protected:
   // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
   void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
 
+  void GetPrincipalCurvature(int ndepth, int dx, int dy, int dz);
 
   // Vars
   int CurvatureType;
   int InvertMeanCurvature;
+  int numPoints;
+  int numPolys;
+
+  vector<vtkSmartPointer<vtkIdList>> neighbors;
+
+  // maybe switch to vector of regular double arrays?
+  // so can easily do vtkMath operations on
+  vector<tuple<double, double, double>> normals;
+  vector<tuple<double, double, double>> unitNormals;
+
+  // vtkPolyData* output_mesh;
 
 private:
   vtkCurvatures1(const vtkCurvatures1&);  // Not implemented.

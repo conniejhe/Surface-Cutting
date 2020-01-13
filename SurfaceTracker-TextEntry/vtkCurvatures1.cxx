@@ -24,6 +24,14 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
+#include <math.h>
+#include <vector>
+#include <tuple>
+
+using std::vector;
+using std::tuple;
+using std::make_tuple;
+
 vtkStandardNewMacro(vtkCurvatures1);
 
 //------------------------------------------------------------------------------
@@ -43,10 +51,126 @@ vtkCurvatures1* vtkCurvatures1::New()
 //-------------------------------------------------------//
 vtkCurvatures1::vtkCurvatures1()
 {
-  this->CurvatureType = ;
+  this->CurvatureType = 0;
   this->InvertMeanCurvature = 0;
+  this->normals = vtkDoubleArray::New();
+  this->unitNormals = vtkDoubleArray::New();
 }
 //-------------------------------------------------------//
+
+void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx, int dy, int dz) {
+    // ensure that ndepth isn't too large or too small
+    if (ndepth < 1 or ndepth > 1000) {
+        ndepth = 2;
+    }
+    genNeighborhoods(ndepth); // need to write this function later
+    if (!this->hasUnitNormals()) {
+        this->genUnitNormals(mesh);
+    }
+}
+
+void vtkCurvatures1::hasNormals() {
+    return this->normals.size() > 0;
+}
+
+void vtkCurvatures1::hasUnitNormals() {
+    return this->unitNormals.size() > 0;
+}
+
+void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
+    if (!this->hasNormals()) {
+        this->genNormals(mesh);
+    }
+    for (int i = 0; i < this->numPoints; i++) {
+        tuple normal = this->normals[i];
+        double norm = this->getNorm(normal);
+        if (norm != 0) {
+            double x = get<0>(normal)/norm;
+            double y = get<1>(normal)/norm;
+            double z = get<2>(normal)/norm;
+            this->unitNormals.push_back(make_tuple(x, y, z));
+        } else {
+            this->unitNormals.push_back(normal);
+        }
+    }
+}
+
+void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
+    for (int i = 0; i < this->numPoints; i++) {
+        this->normals.push_back(make_tuple(0, 0, 0));
+    }
+
+    const int F = mesh->GetNumberOfCells();
+    double p0[3];
+    double p1[3];
+    double p2[3];
+    const vtkNew<vtkIdList> vertices;
+    for (int f = 0; f < F; f++) {
+        // need to reset this each time?
+        // gets three points that comprise triangle and stores in vertices
+        mesh->GetCellPoints(f, vertices);
+
+        // get vertex IDs that comprise the current cell
+        int v0 = vertices->GetId(0);
+        int v1 = vertices->GetId(1);
+        int v2 = vertices->GetId(2);
+
+        // get the x,y,z coordinates that correspond to each vertex
+        mesh->GetPoint(v0, p0);
+        mesh->GetPoint(v1, p1);
+        mesh->GetPoint(v2, p2);
+
+        double cross[3];
+        vtkMath::cross(diff(p1, p0), diff(p2, p0), cross);
+
+        //kinda messy - is there a better way to do this?
+        this->normals[v0] = getTuple(sum(getArray(this->normals[v0]), cross));
+
+        vtkMath::cross(diff(p2, p1), diff(p0, p1), cross);
+        this->normals[v1] = getTuple(sum(getArray(this->normals[v1]), cross));
+
+        vtkMath::cross(diff(p0, p2), diff(p1, p2), cross);
+        this->normals[v2] = getTuple(sum(getArray(this->normals[v1]), cross));
+    }
+
+    for (int i = 0; i < this->numPoints; i++) {
+        this->normals[i] = divide(this->normals[i], 6.0);
+    }
+}
+
+static tuple getTuple(double x[3]) {
+    return make_tuple(double[0], double[1], double[2]);
+}
+
+static double[3] getArray(tuple t) {
+    double ans[3];
+    for (int i = 0; i < 3; i++) {
+        ans[i] = get<i>(tuple);
+    }
+    return ans;
+}
+
+static double[3] diff(double x[3], double y[3]) {
+    double ans[3];
+    for (int i = 0; i < 3; i++) {
+        ans[i] = x[i] - y[i];
+    }
+    return ans;
+}
+
+static double[3] sum(double x[3], double y[3]) {
+    double ans[3];
+    for (int i = 0; i < 3; i++) {
+        ans[i] = x[i] + y[i];
+    }
+    return ans;
+}
+
+void vtkCurvatures1::getNorm(tuple temp) {
+    double x = get<0>(temp); double y = get<1>(temp); double z = get<2>(temp);
+    return sqrt(x*x + y*y + z*z);
+}
+
 void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh)
 {
     cout << "in mean curv" << endl;
@@ -435,6 +559,19 @@ int vtkCurvatures1::RequestData(
   //-------------------------------------------------------//
   //    Set Curvatures as PointData  Scalars               //
   //-------------------------------------------------------//
+
+  // eventually these will be global variables that people can configure
+  // via property panel?
+
+  this->numPoints = output->GetNumberOfPoints();
+  this->numPolys = output->GetNumberOfPolys();
+
+  int ndepth = 2;
+  int dx = 1;
+  int dy = 1;
+  int dz = 1;
+
+  this->GetPrincipalCurvature();
 
   if ( this->CurvatureType == VTK_CURVATURE_GAUSS )
     {
