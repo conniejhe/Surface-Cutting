@@ -12,7 +12,7 @@
   * [Compiling Custom Plugins](#compiling-custom-plugins)
 
 ## Introduction ##
-This repository contains the source code for the surface cutting plugin project for Paraview. All plugins are developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
+This repository contains the source code for the surface cutting plugin project for Paraview. The following plugins have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
 
 Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: https://www.paraview.org/Wiki/ParaView:Build_And_Install
 
@@ -21,6 +21,8 @@ All development thus far has been done on Bofur (CIS machine).
 The surface cutting project consists of two different parts (and hence two main plugins):
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
   2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object. Currently, there are two different implementations of this feature which are described in greater detail below.
+  
+All questions should be directed to Connie He (<conbonhe98@gmail.com>).
 
 ## Plugins Overview ##
 Each plugin consists of (at minimum) four different files:
@@ -121,3 +123,6 @@ All of the above plugins can be built using these commands:
  4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
+
+------------------------------------------------------------------------------------------------------------------------------
+Last Edited by: Connie He (2020 Jan 13)
