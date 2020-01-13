@@ -60,17 +60,19 @@
 #include "vtkPolyDataAlgorithm.h"
 #include <vector>
 #include <tuple>
+#include <utility>
 #include <valarray>
+#include <ADL/Lapack.h>
 
 using std::vector;
 using std::tuple;
 using std::valarray;
+using std::pair;
 class vtkIdList;
 
-#ifndef TOLERANCE
-#define TOLERANCE 0.0001                   // for curvature calculations
-#endif
 
+#define TOLERANCE 0.0001                   // for curvature calculations
+#define MAX_CURV 20
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
 #define VTK_CURVATURE_MAXIMUM 2
@@ -91,7 +93,7 @@ public:
 
   static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
   static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
-
+  static double checkCurv(double);
   // Description:
   // Set/Get Curvature type
   // VTK_CURVATURE_GAUSS: Gaussian curvature, stored as
@@ -117,6 +119,7 @@ public:
   vtkBooleanMacro(InvertMeanCurvature,int);
 protected:
   vtkCurvatures1();
+  ~vtkCurvatures1() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -124,21 +127,23 @@ protected:
   // Description:
   // discrete Gauss curvature (K) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetGaussCurvature(vtkPolyData *output);
+  void GetGaussCurvature(vtkPolyData *);
 
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetMeanCurvature(vtkPolyData *output);
+  void GetMeanCurvature(vtkPolyData *);
 
   //Description:
   // Maximum principal curvature \f$k_max = H + sqrt(H^2 -K)\f$
-  void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
+  void GetMaximumCurvature(vtkPolyData *);
 
   //Description:
   // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
-  void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
+  void GetMinimumCurvature(vtkPolyData *);
 
   void GetPrincipalCurvature(vtkPolyData* mesh, int ndepth, int dx, int dy, int dz);
+
+  void genNeighborhoods(vtkDataSet*, int);
 
   int getMaxNeighbors();
 
@@ -155,12 +160,11 @@ protected:
   int numPoints;
   int numPolys;
 
-  vtkDoubleArray* prinCurvature;
+  // vtkDoubleArray* prinCurvature;
+  vector<pair<double, double>> prinCurvature;
 
   vector<vtkSmartPointer<vtkIdList>> neighbors;
 
-  // maybe switch to vector of regular double arrays?
-  // so can easily do vtkMath operations on
   // vector<tuple<double, double, double>> normals;
   vector<valarray<double>> normals;
   // vector<tuple<double, double, double>> unitNormals;

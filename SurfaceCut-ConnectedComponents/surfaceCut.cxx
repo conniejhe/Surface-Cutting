@@ -140,11 +140,7 @@ void surfaceCut::BuildAdjacency(vtkDataSet *inData)
   cout << "starting to build adjacency matrix..." << endl;
   for ( vtkIdType i = 0; i < ncells; i++)
   {
-    // Possible types
-    //    VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE,
-    //    VTK_POLY_LINE,VTK_TRIANGLE, VTK_QUAD,
-    //    VTK_POLYGON, or VTK_TRIANGLE_STRIP.
-
+      
     vtkIdType ctype = pd->GetCellType(i);
 
     // Until now only handle polys and triangles
