@@ -60,10 +60,16 @@
 #include "vtkPolyDataAlgorithm.h"
 #include <vector>
 #include <tuple>
+#include <valarray>
 
 using std::vector;
 using std::tuple;
+using std::valarray;
 class vtkIdList;
+
+#ifndef TOLERANCE
+#define TOLERANCE 0.0001                   // for curvature calculations
+#endif
 
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
@@ -79,6 +85,12 @@ public:
   // Description:
   // Construct with curvature type set to Gauss
   static vtkCurvatures1 *New();
+
+  static double* getArr(const valarray<double>);
+  static valarray<double> getValArr(const double temp[3]);
+
+  static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
+  static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
 
   // Description:
   // Set/Get Curvature type
@@ -126,20 +138,33 @@ protected:
   // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
   void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
 
-  void GetPrincipalCurvature(int ndepth, int dx, int dy, int dz);
+  void GetPrincipalCurvature(vtkPolyData* mesh, int ndepth, int dx, int dy, int dz);
 
+  int getMaxNeighbors();
+
+  bool hasNormals();
+
+  bool hasUnitNormals();
+
+  void genUnitNormals(vtkPolyData* mesh);
+
+  void genNormals(vtkPolyData* mesh);
   // Vars
   int CurvatureType;
   int InvertMeanCurvature;
   int numPoints;
   int numPolys;
 
+  vtkDoubleArray* prinCurvature;
+
   vector<vtkSmartPointer<vtkIdList>> neighbors;
 
   // maybe switch to vector of regular double arrays?
   // so can easily do vtkMath operations on
-  vector<tuple<double, double, double>> normals;
-  vector<tuple<double, double, double>> unitNormals;
+  // vector<tuple<double, double, double>> normals;
+  vector<valarray<double>> normals;
+  // vector<tuple<double, double, double>> unitNormals;
+  vector<valarray<double>> unitNormals;
 
   // vtkPolyData* output_mesh;
 

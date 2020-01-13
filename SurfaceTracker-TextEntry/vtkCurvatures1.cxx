@@ -24,10 +24,13 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
+#include <cmath>
+#include <valarray>
 #include <math.h>
 #include <vector>
 #include <tuple>
 
+using std::valarray;
 using std::vector;
 using std::tuple;
 using std::make_tuple;
@@ -53,27 +56,153 @@ vtkCurvatures1::vtkCurvatures1()
 {
   this->CurvatureType = 0;
   this->InvertMeanCurvature = 0;
-  this->normals = vtkDoubleArray::New();
-  this->unitNormals = vtkDoubleArray::New();
+  this->prinCurvature = vtkDoubleArray::New();
+  // this->normals = vtkDoubleArray::New();
+  // this->unitNormals = vtkDoubleArray::New();
+  // initialize valarrays?
 }
 //-------------------------------------------------------//
+
+static void getPlane(double &a, double &b, double& c, double&d, const valarray<double> p, const valarray<double> n) {
+    a = n[0];
+    b = n[1];
+    c = n[2];
+    d = -(a*p[0] + b*p[1] + c*p[2]);
+}
+
+static void getBasisVectors(valarray<double>& b1, valarray<double>& b2, valarray<double>& b3, const valarray<double>& n) {
+    double b1x, b1y, b1z;
+    double b2x, b2y, b2z;
+    double b3x, b3y, b3z;
+
+    double nx = n[0];
+    double ny = n[1];
+    double nz = n[2];
+
+    if(fabs(nx > TOLERANCE)) {
+      b1x = -1.0 / nx * (ny + nz);
+      b1y = b1z = 1.0;
+    }
+    else if(fabs(ny > TOLERANCE)) {
+      b1x = b1z = 1.0;
+      b1y = -1.0 / ny * (nx + nz);
+    }
+    else if(fabs(nz > TOLERANCE)) {
+      b1x = b1y = 1.0;
+      b1z = -1.0 / ny * (nx + ny);
+    }
+
+    b1 = {b1x, b1y, b1z};
+    double mag = vtkMath::Norm(vtkCurvatures1::getArr(b1));
+    if (mag == 0.0) mag = 1.0;
+    b1 /= mag;
+
+    b3 = {nx, ny, nz};
+
+    double temp_b2[3];
+    vtkMath::Cross(vtkCurvatures1::getArr(b3), vtkCurvatures1::getArr(b1), temp_b2);
+    mag = vtkMath::Norm(temp_b2);
+    if(mag == 0.0) mag = 1.0;
+    b2 = vtkCurvatures1::getValArr(temp_b2);
+    b2 /= mag;
+}
 
 void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx, int dy, int dz) {
     // ensure that ndepth isn't too large or too small
     if (ndepth < 1 or ndepth > 1000) {
         ndepth = 2;
     }
-    genNeighborhoods(ndepth); // need to write this function later
+    // genNeighborhoods(ndepth); // need to write this function later
+    // have check to see if neighborhoods generated properly
     if (!this->hasUnitNormals()) {
         this->genUnitNormals(mesh);
     }
+    this->prinCurvature->SetNumberOfTuples(this->numPoints);
+
+    int maxn = getMaxNeighbors();
+    maxn++;
+
+    valarray<float> h(maxn);
+    valarray<float> u(maxn);
+    valarray<float> v(maxn);
+    valarray<float> uu(maxn);
+    valarray<float> vv(maxn);
+    valarray<float> two_uv(maxn);
+
+    float tmp[3],U[3][3],BU[3],work[3],workc[5];
+    float rval;
+    int   IPIV[4];
+    float C[2][2],W[2];
+    char  JOBZ, UPLO;
+    int   INFO,  LDA, LDB, LWORK, N, NRHS;
+    int   LDC, LWORKC, NC;
+    int   i,j;
+
+    for (int idx = 0; idx < this->numPoints; i++) {
+        double a, b, c, d;
+        valarray<double> b1(3), b2(3), b3(3);
+
+        int num_nei = this->neighbors[idx]->GetNumberOfIds();
+
+        double ptx, pty, ptz;
+        double pt[3];
+        mesh->GetPoint(idx, pt);
+
+        ptx = pt[0] * dx;
+        pty = pt[1] * dy;
+        ptz = pt[2] * dz;
+
+        valarray<double> pp = {ptx, pty, ptz};
+        valarray<double> nn = this->unitNormals[idx];
+
+        vtkCurvatures1::getPlane(a, b, c, d, pp, nn);
+        vtkCurvatures1::getBasisVectors(b1, b2, b3, nn);
+
+        for (int i = 0; i < num_nei; i++) {
+            int nei = this->neighbors[idx]->GetId(i);
+            if (nei < 0) continue;
+
+            double px, py, pz;
+            double pt_nei[3];
+            mesh->GetPoint(nei, pt_nei);
+            
+            px = pt_nei[0] * dx;
+            py = pt_nei[1] * dy;
+            pz = pt_nei[2] * dz;
+
+            h[i] = a*px + b*py + c*pz + d;
+            tmp[0] = px - h[i] * nx - ptx;
+            tmp[1] = py - h[i] * ny - pty;
+            tmp[2] = pz - h[i] * nz - ptz;
+
+            u[i] = tmp[0]*b1.x()+tmp[1]*b1.y()+tmp[2]*b1.z();
+            v[i] = tmp[0]*b2.x()+tmp[1]*b2.y()+tmp[2]*b2.z();
+
+            two_uv[i] = 2.0*u[i]*v[i];
+            uu[i] = u[i]*u[i];
+            vv[i] = v[i]*v[i];
+
+        }
+    }
+
+
 }
 
-void vtkCurvatures1::hasNormals() {
+int vtkCurvatures1::getMaxNeighbors() {
+    int maxn = 0;
+    for (int m = 0; m < this->numPoints; m++) {
+        if (this->neighbors[m]->GetNumberOfIds() > maxn) {
+            maxn = this->neighbors[m]->GetNumberOfIds();
+        }
+    }
+    return maxn;
+}
+
+bool vtkCurvatures1::hasNormals() {
     return this->normals.size() > 0;
 }
 
-void vtkCurvatures1::hasUnitNormals() {
+bool vtkCurvatures1::hasUnitNormals() {
     return this->unitNormals.size() > 0;
 }
 
@@ -82,13 +211,14 @@ void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
         this->genNormals(mesh);
     }
     for (int i = 0; i < this->numPoints; i++) {
-        tuple normal = this->normals[i];
-        double norm = this->getNorm(normal);
+        valarray<double> normal = this->normals[i];
+        double norm = vtkMath::Norm(getArr(normal));
         if (norm != 0) {
-            double x = get<0>(normal)/norm;
-            double y = get<1>(normal)/norm;
-            double z = get<2>(normal)/norm;
-            this->unitNormals.push_back(make_tuple(x, y, z));
+            double x = normal[0]/norm;
+            double y = normal[1]/norm;
+            double z = normal[2]/norm;
+            valarray<double> unitNorm = {x, y, z};
+            this->unitNormals.push_back(unitNorm);
         } else {
             this->unitNormals.push_back(normal);
         }
@@ -97,7 +227,9 @@ void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
 
 void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
     for (int i = 0; i < this->numPoints; i++) {
-        this->normals.push_back(make_tuple(0, 0, 0));
+        // this->normals.push_back(make_tuple(0, 0, 0));
+        valarray<double> init = {0, 0, 0};
+        this->normals[i] = init;
     }
 
     const int F = mesh->GetNumberOfCells();
@@ -121,55 +253,82 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
         mesh->GetPoint(v2, p2);
 
         double cross[3];
-        vtkMath::cross(diff(p1, p0), diff(p2, p0), cross);
+        // vtkMath::cross(diff(p1, p0), diff(p2, p0), cross);
+        vtkMath::Cross(getArr(getValArr(p1) - getValArr(p0)),
+            getArr(getValArr(p2) - getValArr(p0)), cross);
 
-        //kinda messy - is there a better way to do this?
-        this->normals[v0] = getTuple(sum(getArray(this->normals[v0]), cross));
+        // kinda messy - is there a better way to do this?
+        // this->normals[v0] = getTuple(sum(getArray(this->normals[v0]), cross));
+        this->normals[v0] += getValArr(cross);
 
-        vtkMath::cross(diff(p2, p1), diff(p0, p1), cross);
-        this->normals[v1] = getTuple(sum(getArray(this->normals[v1]), cross));
+        // vtkMath::cross(diff(p2, p1), diff(p0, p1), cross);
+        vtkMath::Cross(getArr(getValArr(p2)-getValArr(p1)),
+            getArr(getValArr(p0) -getValArr(p1)), cross);
+        // this->normals[v1] = getTuple(sum(getArray(this->normals[v1]), cross));
+        this->normals[v1] += getValArr(cross);
 
-        vtkMath::cross(diff(p0, p2), diff(p1, p2), cross);
-        this->normals[v2] = getTuple(sum(getArray(this->normals[v1]), cross));
+        // vtkMath::cross(diff(p0, p2), diff(p1, p2), cross);
+        vtkMath::Cross(getArr(getValArr(p0) - getValArr(p2)),
+            getArr(getValArr(p1) - getValArr(p2)), cross);
+        // this->normals[v2] = getTuple(sum(getArray(this->normals[v1]), cross));
+        this->normals[v2] += getValArr(cross);
     }
 
     for (int i = 0; i < this->numPoints; i++) {
-        this->normals[i] = divide(this->normals[i], 6.0);
+        this->normals[i] = this->normals[i]/6.0;
     }
 }
 
-static tuple getTuple(double x[3]) {
-    return make_tuple(double[0], double[1], double[2]);
-}
-
-static double[3] getArray(tuple t) {
-    double ans[3];
+static double* getArr(const valarray<double> temp) {
+    static double ans[3];
     for (int i = 0; i < 3; i++) {
-        ans[i] = get<i>(tuple);
+        ans[i] = temp[i];
     }
     return ans;
 }
 
-static double[3] diff(double x[3], double y[3]) {
-    double ans[3];
+static valarray<double> getValArr(const double temp[3]) {
+    valarray<double> ans;
     for (int i = 0; i < 3; i++) {
-        ans[i] = x[i] - y[i];
+        ans[i] = temp[i];
     }
     return ans;
+    // return valarray<double> ans(temp, 3);
 }
 
-static double[3] sum(double x[3], double y[3]) {
-    double ans[3];
-    for (int i = 0; i < 3; i++) {
-        ans[i] = x[i] + y[i];
-    }
-    return ans;
-}
+// static tuple getTuple(double x[3]) {
+//     return make_tuple(double[0], double[1], double[2]);
+// }
+//
+// static double[3] getArray(tuple t) {
+//     double ans[3];
+//     for (int i = 0; i < 3; i++) {
+//         ans[i] = get<i>(tuple);
+//     }
+//     return ans;
+// }
 
-void vtkCurvatures1::getNorm(tuple temp) {
-    double x = get<0>(temp); double y = get<1>(temp); double z = get<2>(temp);
-    return sqrt(x*x + y*y + z*z);
-}
+// static double[3] diff(double x[3], double y[3]) {
+//     double ans[3];
+//     for (int i = 0; i < 3; i++) {
+//         ans[i] = x[i] - y[i];
+//     }
+//     return ans;
+// }
+//
+// static double[3] sum(double x[3], double y[3]) {
+//     double ans[3];
+//     for (int i = 0; i < 3; i++) {
+//         ans[i] = x[i] + y[i];
+//     }
+//     return ans;
+// }
+
+// void vtkCurvatures1::getNorm(tuple temp) {
+//     double x = get<0>(temp); double y = get<1>(temp); double z = get<2>(temp);
+//     return sqrt(x*x + y*y + z*z);
+// }
+
 
 void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh)
 {
@@ -571,7 +730,7 @@ int vtkCurvatures1::RequestData(
   int dy = 1;
   int dz = 1;
 
-  this->GetPrincipalCurvature();
+  this->GetPrincipalCurvature(output, ndepth, dx, dy, dz);
 
   if ( this->CurvatureType == VTK_CURVATURE_GAUSS )
     {

@@ -1,4 +1,4 @@
- 
+
 BW Curvature (ctype, ndepth, dx, dy, dz)
 
 1. if surface empty return error
@@ -62,7 +62,7 @@ Big_ass_for_loop (Hamann's Algorithm)
 15.   double nz = nn.z()
 //----
 16.   for i from 0 to num_neighbors
-17.       nei = mNbhd[pindx].getNeighbor(i)
+17.       int nei = mNbhd[pindx].getNeighbor(i)
 18.       if (nei < 0) continue
 19.       double px = mVert[nei].x() * dx
 20.       double py = mVert[nei].x() * dy
@@ -71,7 +71,7 @@ Big_ass_for_loop (Hamann's Algorithm)
 22.       h[i] = a*px + b*py + c*pz + d // distance from point (neighbor) to tangent plane fit to original point
 23.       tmp[0] = px - h[i] * nx - ptx // neighboring point projected onto tangent plane - original point (this vector is in plane)
 24.       tmp[1] = py - h[i] * ny - pty
-25.       tmp[2] = pz - h[i] * nz - ptz   
+25.       tmp[2] = pz - h[i] * nz - ptz
 //----
 26.       u[i] = tmp[0]*b1.x()+tmp[1]*b1.y()+tmp[2]*b1.z()
 27.       v[i] = tmp[0]*b2.x()+tmp[1]*b2.y()+tmp[2]*b2.z()
@@ -107,7 +107,7 @@ Compute factorization of real symmetric matrix A into A = L*D*L*T where L is low
         // function definition: ssytrf(UPLO, N, A, LDA, IPIV, WORK, LWORK, INFO)
 //----
 Solve system of linear equations to obtain shape operator
-53.    if INFO is 0 
+53.    if INFO is 0
 54.       ssytrs_(&UPLO, &N, &NRHS, (float*)U, &LDA, IPIV, BU, &LDB , &INFO)
           // function definiton: ssytrs(UPLO, N, NRHS, A, LDA, IPIV, B, LDB, INFO)
 55.       C[0][0] = BU[0] // the solution gets stored in BU -> create matrix C which is shape operator
