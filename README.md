@@ -4,6 +4,7 @@
 - [Surface-Cutting](#surface-cutting)
   * [Introduction](#introduction)
   * [Plugins Overview](#plugins-overview)
+    + [Curvature](#Curvature)
     + [SurfaceTracker-TextEntry](#surfacetracker-textentry)
     + [SurfaceTracker-ManualSelection](#surfacetracker-manualselection)
     + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
@@ -11,7 +12,7 @@
   * [Compiling Custom Plugins](#compiling-custom-plugins)
 
 ## Introduction ##
-This repository contains the source code for the surface cutting plugin project for Paraview. All plugins are developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
+This repository contains the source code for the surface cutting plugin project for Paraview. The following plugins have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
 
 Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: https://www.paraview.org/Wiki/ParaView:Build_And_Install
 
@@ -20,6 +21,8 @@ All development thus far has been done on Bofur (CIS machine).
 The surface cutting project consists of two different parts (and hence two main plugins):
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
   2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object. Currently, there are two different implementations of this feature which are described in greater detail below.
+  
+All questions should be directed to Connie He (<conbonhe98@gmail.com>).
 
 ## Plugins Overview ##
 Each plugin consists of (at minimum) four different files:
@@ -27,7 +30,21 @@ Each plugin consists of (at minimum) four different files:
   2. Source code header (.h)
   3. Server Manager XML configuration (.xml) file which determines what properties are displayed in the property panel and the required input connections (along with what datatype they should be), essentially configures the plugin front-end
   4. CMakeLists.txt: basically a make file which tells cmake which classes to build
+  
+### Curvature ###
+This plugin calculates the curvature of the brain surface at each vertex. It implements Hamann's algorithm, which derives a tangent plane at each point and uses it to compute the local shape operator.
 
+  **Input**: 
+  - *pipeline browser*: Brain surface that is being processed (vtkPolyData); usually rendered from a BYU file  
+  - *property panel*: 
+    - set curvature calculation type (mean, gauss, max, min)
+    
+  **Output**: A vtkPolyData object that is the same as the input but with an extra Curvature array in Point Data.
+
+**Notes**:
+ - This is currenlty still in development. Will add neighborhood depth and voxel dimensions (dx, dy, dz) to the property panel so that users can configure this.
+ - currently compiles as a stand-alone plugin but when it is used by another plugin (i.e. SurfaceTracker-TextEntry), it fails to load into PV for some reason. 
+ 
 ### SurfaceTracker-TextEntry ###
 This plugin connects two user-inputted points and has three different modes which determines how the points are connected:
   1. **Geodesic**: uses Dijkstra's algorithm - simple shortest path dynamic programming approach
@@ -41,13 +58,11 @@ Paraview has an existing filter that calculates geodesic shortest path using Dij
   - *property panel*: 
     - set start vertex (double)
     - set end vertex (double)
-    - set line type (geodesic, gyrus, and sulcus)  
+    - set line type (geodesic, gyrus, and sulcus) 
+    - set curvature type used for cost function (mean, gauss, max, min)
+      - may change this later because should really only be using max curvature
     
   **Output**: A set of lines corresponding to the curve generated to connect the two points.
-  
-[vtkDijkstraGraphGeodesicPath1.h](SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.h): Header file for Surface Tracker Plugin (text entry mode)  
-[vtkDijkstraGraphGeodesicPath1.cxx](SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.cxx): Source file for Surface Tracker Plugin (text entry mode)
-[vtkDijkstraGraphGeodesicPath1.xml](SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.xml): XML configuration (determines what the property panel looks like and what the user can change)
 
 ### SurfaceTracker-ManualSelection ###
 This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. The difference is that instead of inputting the start and end vertices, the user can freely select points along the surface and this filter will connect all of these vertices with curves (the three modes of geodesic, gyrus, and sulcus exist as well).
@@ -68,6 +83,7 @@ This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. Th
 
 ### SurfaceCut-ImplicitSelectionLoop ###
 This plugin cuts the brain surface along the curves generated by the surface tracking filter. It uses vtk filter Implicit Selection Loop along with the clip filter to extract the inner region of the loop. Documentation for implicit selection loop can be found here: https://vtk.org/doc/nightly/html/classvtkImplicitSelectionLoop.html, and this is an example using it: https://lorensen.github.io/VTKExamples/site/Cxx/PolyData/ImplicitSelectionLoop/  
+
   **Input**: 
   - *pipeline browser*: 
     - Brain surface that is being processed (vtkPolyData); usually rendered from a BYU file
@@ -107,3 +123,6 @@ All of the above plugins can be built using these commands:
  4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
+
+------------------------------------------------------------------------------------------------------------------------------
+Last Edited by: Connie He (2020 Jan 13)
