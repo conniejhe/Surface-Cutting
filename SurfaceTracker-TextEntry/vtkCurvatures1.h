@@ -13,6 +13,7 @@
 #define __vtkCurvatures1_h
 
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkIdList.h"
 #include <vector>
 #include <tuple>
 #include <utility>
@@ -23,7 +24,7 @@ using std::vector;
 using std::tuple;
 using std::valarray;
 using std::pair;
-class vtkIdList;
+// class vtkIdList;
 
 
 #define TOLERANCE 0.0001                   // for curvature calculations
@@ -49,7 +50,11 @@ public:
   static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
   static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
   static double checkCurv(double);
-  static bool addNeighbor(vtkSmartPointer<vtkIdList>, vtkIdType, bool);
+  static bool addNeighbor(vtkSmartPointer<vtkIdList>&, vtkIdType, bool);
+
+  // static void myCross(const double a[3], const double b[3], double c[3]);
+  static void myCross(valarray<double> a, valarray<double> b, valarray<double>& c);
+  static double myNorm(valarray<double> temp); 
 
   // Description:
   // Set/Get Curvature type
@@ -114,6 +119,9 @@ protected:
   void genUnitNormals(vtkPolyData* mesh);
 
   void genNormals(vtkPolyData* mesh);
+
+  void copyNeighbors(vector<vtkSmartPointer<vtkIdList>> orig,
+      vector<vtkSmartPointer<vtkIdList>>& copy);
   // Vars
   int CurvatureType;
   int InvertMeanCurvature;

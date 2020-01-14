@@ -23,6 +23,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkIdList.h"
 
 #include <algorithm>
 #include <cmath>
@@ -78,14 +79,14 @@ vtkCurvatures1::~vtkCurvatures1() {
     // }
 }
 
-static void getPlane(double &a, double &b, double& c, double&d, const valarray<double> p, const valarray<double> n) {
+void vtkCurvatures1::getPlane(double &a, double &b, double& c, double&d, const valarray<double> p, const valarray<double> n) {
     a = n[0];
     b = n[1];
     c = n[2];
     d = -(a*p[0] + b*p[1] + c*p[2]);
 }
 
-static void getBasisVectors(valarray<double>& b1, valarray<double>& b2, valarray<double>& b3, const valarray<double>& n) {
+void vtkCurvatures1::getBasisVectors(valarray<double>& b1, valarray<double>& b2, valarray<double>& b3, const valarray<double>& n) {
     double b1x, b1y, b1z;
     double b2x, b2y, b2z;
     double b3x, b3y, b3z;
@@ -108,17 +109,17 @@ static void getBasisVectors(valarray<double>& b1, valarray<double>& b2, valarray
     }
 
     b1 = {b1x, b1y, b1z};
-    double mag = vtkMath::Norm(vtkCurvatures1::getArr(b1));
+    double mag = vtkCurvatures1::myNorm(b1);
     if (mag == 0.0) mag = 1.0;
     b1 /= mag;
 
     b3 = {nx, ny, nz};
 
-    double temp_b2[3];
-    vtkMath::Cross(vtkCurvatures1::getArr(b3), vtkCurvatures1::getArr(b1), temp_b2);
-    mag = vtkMath::Norm(temp_b2);
+    valarray<double> temp_b2(3);
+    vtkCurvatures1::myCross(b3, b1, temp_b2);
+    mag = vtkCurvatures1::myNorm(temp_b2);
     if(mag == 0.0) mag = 1.0;
-    b2 = vtkCurvatures1::getValArr(temp_b2);
+    b2 = temp_b2;
     b2 /= mag;
 }
 
@@ -133,10 +134,11 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
     }
 
     int a, b, c;
+    int i;
 
     vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
     vtkIdType ncells = pd->GetNumberOfCells();
-    for ( vtkIdType i = 0; i < ncells; i++) {
+    for (i = 0; i < ncells; i++) {
 
         // vtkIdType ctype = pd->GetCellType(i);
         //
@@ -161,8 +163,8 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
         //         }
         //     }
         // }
-        int npts;
-        const vtkNew<vtkIdList> pts;
+        vtkIdType npts;
+        vtkIdType* pts;
         pd->GetCellPoints(i, npts, pts);
         if (npts != 3) {
             cerr << "number of points that comprise cell is not 3" << endl;
@@ -171,27 +173,48 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
         b = pts[1];
         c = pts[2];
 
-        if (addNeighbor(this->neighbors[a], b, true))
-            addNeighbor(this->neighbors[b], a, false));
-        if (addNeighbor(this->neighbors[a], c, true))
-            addNeighbor(this->neighbors[c], a, false));
-        if (addNeighbor(this->neighbors[b], c, true))
-            addNeighbor(this->neighbors[c], b, false));
+        if (vtkCurvatures1::addNeighbor(this->neighbors[a], b, true))
+            vtkCurvatures1::addNeighbor(this->neighbors[b], a, false);
+        if (vtkCurvatures1::addNeighbor(this->neighbors[a], c, true))
+            vtkCurvatures1::addNeighbor(this->neighbors[c], a, false);
+        if (vtkCurvatures1::addNeighbor(this->neighbors[b], c, true))
+            vtkCurvatures1::addNeighbor(this->neighbors[c], b, false);
     }
+
+    cout << "added depth 1 neighbors..." << endl;
+
+    // debugging
+    // for (int i = 0; i < this->numPoints; i++) {
+    //     int numnei = this->neighbors[i]->GetNumberOfIds();
+    //     cout << "numnei: " << numnei << endl;
+    //     for (int j = 0; j < numnei; j++) {
+    //         cout << this->neighbors[i]->GetId(j) << endl;
+    //     }
+    // }
 
     // for ndepth > 1, add neighbors of neighbors
     for (int j = 1; j < ndepth; j++) {
-      vector<vtkSmartPointer<vtkIdList>> bigNghbd = this->neighbors;
+      vector<vtkSmartPointer<vtkIdList>> bigNghbd;
+      copyNeighbors(this->neighbors, bigNghbd);
+
+      // for debugging - check if copying worked
+      // for (int i = 0; i < this->numPoints; i++) {
+      //     int numnei = bigNghbd[i]->GetNumberOfIds();
+      //     cout << "numnei: " << numnei << endl;
+      //     for (int j = 0; j < numnei; j++) {
+      //         cout << bigNghbd[i]->GetId(j) << endl;
+      //     }
+      // }
       for (i = 0; i < this->numPoints; i++) {
           int numn = this->neighbors[i]->GetNumberOfIds();
-      }
+          for (int k = 0; k < numn; k++) {
+              vtkIdType nei = this->neighbors[i]->GetId(k);
+              int newnumn = this->neighbors[nei]->GetNumberOfIds();
 
-      for (int k = 0; k < numn; k++) {
-          vtkIdType nei = this->neighbors[i]->GetId(k);
-          int newnumn = this->neighbors[nei]->GetNumberOfIds();
-          for (int l = 0; l < newnumn; l++) {
-              vtkIdType newnei = this->neighbors[nei]->GetId(l);
-              addNeighbor(bigNghbd[i], newnei, true);
+              for (int l = 0; l < newnumn; l++) {
+                  vtkIdType newnei = this->neighbors[nei]->GetId(l);
+                  vtkCurvatures1::addNeighbor(bigNghbd[i], newnei, true);
+              }
           }
       }
 
@@ -200,10 +223,24 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
     }
   //this->AdjacencyBuildTime.Modified();???
 }
-static bool addNeighbor(vtkSmartPointer<vtkIdList> list, vtkIdType nbr, bool check) {
+
+void vtkCurvatures1::copyNeighbors(vector<vtkSmartPointer<vtkIdList>> orig,
+    vector<vtkSmartPointer<vtkIdList>>& copy) {
+        for (int i = 0; i < this->numPoints; i++) {
+            copy.push_back(vtkSmartPointer<vtkIdList>::New());
+            for (int j = 0; j < orig[i]->GetNumberOfIds(); j++) {
+                copy[i]->InsertNextId(orig[i]->GetId(j));
+            }
+        }
+    }
+
+bool vtkCurvatures1::addNeighbor(vtkSmartPointer<vtkIdList>& list, vtkIdType nbr, bool check) {
     if (check) {
-        if (list->IsId(nbr) != -1) list->InsertNextId(nbr);
-        else return false;
+        if (list->IsId(nbr) == -1) {
+            list->InsertNextId(nbr);
+        } else {
+            return false;
+        }
     } else {
         list->InsertNextId(nbr);
     }
@@ -216,13 +253,16 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         ndepth = 2;
     }
 
-    genNeighborhoods(mesh, ndepth); // need to write this function later
+    mesh->BuildLinks();
+    genNeighborhoods(mesh, ndepth);
     // have check to see if neighborhoods generated properly
     if (!this->hasUnitNormals()) {
         this->genUnitNormals(mesh);
+        cout << "done generating unit" << endl;
     }
 
     int maxn = getMaxNeighbors();
+
     maxn++;
 
     valarray<float> h(maxn);
@@ -241,8 +281,6 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
     int   LDC, LWORKC, NC;
     int   i,j;
 
-    mesh->BuildLinks();
-
     for (int idx = 0; idx < this->numPoints; i++) {
         double a, b, c, d;
         valarray<double> b1(3), b2(3), b3(3);
@@ -254,14 +292,29 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         mesh->GetPoint(idx, pt);
 
         ptx = pt[0] * dx;
+        cout << "ptx: " << ptx << endl;
         pty = pt[1] * dy;
+        cout << "pty: " << pty << endl;
         ptz = pt[2] * dz;
+        cout << "ptz: " << ptz << endl;
 
         valarray<double> pp = {ptx, pty, ptz};
         valarray<double> nn = this->unitNormals[idx];
 
         vtkCurvatures1::getPlane(a, b, c, d, pp, nn);
+
+        cout << "A: " << a << endl;
+        cout << "B: " << b << endl;
+        cout << "C: " << c << endl;
+        cout << "D: " << d << endl;
+
         vtkCurvatures1::getBasisVectors(b1, b2, b3, nn);
+
+        cout << "b1: " << b1[0] << " " << b1[1] << " " << b1[2] << endl;
+        cout << "b2: " << b2[0] << " " << b2[1] << " " << b2[2] << endl;
+        cout << "b1: " << b3[0] << " " << b3[1] << " " << b3[2] << endl;
+
+        cout << "got plane and basis vectors" << endl;
 
         double nx = nn[0];
         double ny = nn[1];
@@ -280,12 +333,17 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             pz = pt_nei[2] * dz;
 
             h[i] = a*px + b*py + c*pz + d;
+
+            cout << "h[i]: " << h[i] << endl;
             tmp[0] = px - h[i]*nx - ptx;
+            cout << "tmp[0]: " << tmp[0] << endl;
             tmp[1] = py - h[i]*ny - pty;
             tmp[2] = pz - h[i]*nz - ptz;
 
             u[i] = tmp[0]*b1[0] + tmp[1]*b1[1] + tmp[2]*b1[2];
+            cout << "u[i]: " << u[i] << endl;
             v[i] = tmp[0]*b2[0] + tmp[1]*b2[1] + tmp[2]*b2[2];
+            cout << "v[i]: " << v[i] << endl;
 
             two_uv[i] = 2.0*u[i]*v[i];
             uu[i] = u[i]*u[i];
@@ -312,6 +370,14 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             BU[2]   += (vv[i]*2.0*h[i]);
         }
 
+        cout << U[0][0] << endl;
+        cout << U[0][1] << endl;
+        cout << U[0][2] << endl;
+        cout << U[0][0] << endl;
+        cout << U[1][1] << endl;
+        cout << U[1][2] << endl;
+        cout << U[2][2] << endl;
+
         U[1][0] = U[0][1];
         U[2][0] = U[0][2];
         U[2][1] = U[1][2];
@@ -323,6 +389,8 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         LWORK = 3;
         N     = 3;
         NRHS  = 1;
+
+        cout << "about to do linalg stuff " << endl;
 
         ssytrf_(&UPLO, &N, (float*)U, &LDA, IPIV, work, &LWORK, &INFO);
 
@@ -352,6 +420,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 }
 
 int vtkCurvatures1::getMaxNeighbors() {
+    cout << "in getMaxNeighbors" << endl;
     int maxn = 0;
     for (int m = 0; m < this->numPoints; m++) {
         if (this->neighbors[m]->GetNumberOfIds() > maxn) {
@@ -362,20 +431,24 @@ int vtkCurvatures1::getMaxNeighbors() {
 }
 
 bool vtkCurvatures1::hasNormals() {
+    cout << "checking if has normals" << endl;
     return this->normals.size() > 0;
 }
 
 bool vtkCurvatures1::hasUnitNormals() {
+    cout << "checking if has unit normals" << endl;
     return this->unitNormals.size() > 0;
 }
 
 void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
+    cout << "generating unit normals" << endl;
     if (!this->hasNormals()) {
+        cout << "no normals" << endl;
         this->genNormals(mesh);
     }
     for (int i = 0; i < this->numPoints; i++) {
         valarray<double> normal = this->normals[i];
-        double norm = vtkMath::Norm(getArr(normal));
+        double norm = myNorm(normal);
         if (norm != 0) {
             double x = normal[0]/norm;
             double y = normal[1]/norm;
@@ -386,73 +459,128 @@ void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
             this->unitNormals.push_back(normal);
         }
     }
+
+    cout << "done generating unit normals" << endl;
+}
+
+double vtkCurvatures1::myNorm(valarray<double> temp) {
+    return sqrt(temp[0]*temp[0] + temp[1]*temp[1] + temp[2]*temp[2]);
 }
 
 void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
+
+    // initializing normals array
     for (int i = 0; i < this->numPoints; i++) {
         // this->normals.push_back(make_tuple(0, 0, 0));
         valarray<double> init = {0, 0, 0};
-        this->normals[i] = init;
+        this->normals.push_back(init);
     }
     mesh->BuildLinks();
     const int F = mesh->GetNumberOfCells();
     double p0[3];
     double p1[3];
     double p2[3];
-    const vtkNew<vtkIdList> vertices;
-    for (int f = 0; f < F; f++) {
+    vtkNew<vtkIdList> vertices;
+
+    cout << "about to go into for loop in genNormals" << endl;
+    for (int f = 0; f < F ; f++) {
         // need to reset this each time?
         // gets three points that comprise triangle and stores in vertices
         mesh->GetCellPoints(f, vertices);
 
+        // cout << "on cell number: " << f << endl;
         // get vertex IDs that comprise the current cell
         int v0 = vertices->GetId(0);
+        // cout << "Id 0: " << v0 << endl;
         int v1 = vertices->GetId(1);
+        // cout << "Id 1: " << v1 << endl;
         int v2 = vertices->GetId(2);
+        // cout << "Id 2: " << v2 << endl;
 
         // get the x,y,z coordinates that correspond to each vertex
         mesh->GetPoint(v0, p0);
+        // cout << "got first point: " << p0[0] << " " << p0[1] << " " << p0[2] << endl;
         mesh->GetPoint(v1, p1);
+        // cout << "got second point" << p1[0] << " " << p1[1] << " " << p1[2] << endl;
         mesh->GetPoint(v2, p2);
+        // cout << "got third point" << p2[0] << " " << p2[1] << " " << p2[2] << endl;
 
-        double cross[3];
+        valarray<double> p0_1 = {p0[0], p0[1], p0[2]};
+        valarray<double> p1_1 = {p1[0], p1[1], p1[2]};
+        valarray<double> p2_1 = {p2[0], p2[1], p2[2]};
+
+        valarray<double> cross(3);
         // kinda messy - is there a better way to do this?
-        vtkMath::Cross(getArr(getValArr(p1) - getValArr(p0)),
-            getArr(getValArr(p2) - getValArr(p0)), cross);
-        this->normals[v0] += getValArr(cross);
 
-        vtkMath::Cross(getArr(getValArr(p2)-getValArr(p1)),
-            getArr(getValArr(p0) -getValArr(p1)), cross);
-        this->normals[v1] += getValArr(cross);
+        // cout << "val array first elem: " << getValArr(p0)[0] << endl;
+        // cout << "val array second elem: " << getValArr(p1)[0] << endl;
+        // double* temp = getArr(getValArr(p1) - getValArr(p0));
+        // cout << "subtract1: " << temp[0] << " " << temp[1] <<" " << temp[2] << endl;
+        //
+        // double* temp2 = getArr(getValArr(p2) - getValArr(p0));
+        // cout << "subtract2: " << temp2[0] << " " << temp2[1] << " " << temp2[2] << endl;
 
+        // double test[3] = {-0.183102, 0.889008, -1.56001};
+        // double test1[3] = {-1.6288, 2.306, -0.302002};
+        myCross(p1_1 - p0_1, p2_1 - p0_1, cross);
+        // cout << "cross0: " << cross[0] << cross[1] << cross[2] << endl;
+        this->normals[v0] += cross;
 
-        vtkMath::Cross(getArr(getValArr(p0) - getValArr(p2)),
-            getArr(getValArr(p1) - getValArr(p2)), cross);
-        this->normals[v2] += getValArr(cross);
+        myCross(p2_1 - p1_1, p0_1 - p1_1, cross);
+        // cout << "cross1: " << cross[0] << cross[1] << cross[2] << endl;
+        this->normals[v1] += cross;
+
+        myCross(p0_1 - p2_1, p1_1 - p2_1, cross);
+        // cout << "cross2: " << cross[0] << cross[1] << cross[2] << endl;
+        this->normals[v2] += cross;
     }
+
+    cout << "done with for loop in gen normals" << endl;
 
     for (int i = 0; i < this->numPoints; i++) {
-        this->normals[i] = this->normals[i]/6.0;
+        this->normals[i] = this->normals[i] / 6.0;
+        cout << "normal " << i << ":" << this->normals[i][0] << this->normals[i][1]
+            << this->normals[i][2] << endl;
     }
+    cout << "exiting" << endl;
 }
 
-static double* getArr(const valarray<double> temp) {
-    static double ans[3];
+// Cross product of two 3-vectors. Result (a x b) is stored in c[3].
+ // void vtkCurvatures1::myCross(const double a[3], const double b[3], double c[3])
+ void vtkCurvatures1::myCross(valarray<double> a, valarray<double> b, valarray<double>& c)
+ {
+     cout << "a" << a[0] << endl;
+     cout << "b" << b[0] << endl;
+     cout << "a[1] * b[2] " << a[1]*b[2] << endl;
+     cout << "a[2] * b[1] " << a[2]*b[1] << endl;;
+   double Cx = a[1]*b[2] - a[2]*b[1];
+   double Cy = a[2] * b[0] - a[0] * b[2];
+   double Cz = a[0] * b[1] - a[1] * b[0];
+   cout << " cx" << Cx << endl;
+   cout << "cy" << Cy << endl;
+   cout << "cz" << Cz << endl;
+   c[0] = Cx;
+   c[1] = Cy;
+   c[2] = Cz;
+ }
+
+double* vtkCurvatures1::getArr(const valarray<double> temp) {
+    double ans[3];
     for (int i = 0; i < 3; i++) {
         ans[i] = temp[i];
     }
     return ans;
 }
 
-static valarray<double> getValArr(const double temp[3]) {
-    valarray<double> ans;
+valarray<double> vtkCurvatures1::getValArr(const double temp[3]) {
+    valarray<double> ans(3);
     for (int i = 0; i < 3; i++) {
         ans[i] = temp[i];
     }
     return ans;
 }
 
-static double checkCurv(double curv) {
+double vtkCurvatures1::checkCurv(double curv) {
     if (fabs(curv) > MAX_CURV) {
         if (curv < 0) curv = -MAX_CURV;
         else curv = MAX_CURV;
@@ -594,6 +722,8 @@ int vtkCurvatures1::RequestData(
     int dx = 1;
     int dy = 1;
     int dz = 1;
+
+    cout << "about to get principal curvature..." << endl;
 
     this->GetPrincipalCurvature(output, ndepth, dx, dy, dz);
 
