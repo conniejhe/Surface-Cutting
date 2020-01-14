@@ -44,9 +44,6 @@ public:
   // Construct with curvature type set to Gauss
   static vtkCurvatures1 *New();
 
-  static double* getArr(const valarray<double>);
-  static valarray<double> getValArr(const double temp[3]);
-
   static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
   static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
   static double checkCurv(double);
@@ -54,7 +51,7 @@ public:
 
   // static void myCross(const double a[3], const double b[3], double c[3]);
   static void myCross(valarray<double> a, valarray<double> b, valarray<double>& c);
-  static double myNorm(valarray<double> temp); 
+  static double myNorm(valarray<double> temp);
 
   // Description:
   // Set/Get Curvature type

@@ -292,29 +292,15 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         mesh->GetPoint(idx, pt);
 
         ptx = pt[0] * dx;
-        cout << "ptx: " << ptx << endl;
         pty = pt[1] * dy;
-        cout << "pty: " << pty << endl;
         ptz = pt[2] * dz;
-        cout << "ptz: " << ptz << endl;
 
         valarray<double> pp = {ptx, pty, ptz};
         valarray<double> nn = this->unitNormals[idx];
 
         vtkCurvatures1::getPlane(a, b, c, d, pp, nn);
 
-        cout << "A: " << a << endl;
-        cout << "B: " << b << endl;
-        cout << "C: " << c << endl;
-        cout << "D: " << d << endl;
-
         vtkCurvatures1::getBasisVectors(b1, b2, b3, nn);
-
-        cout << "b1: " << b1[0] << " " << b1[1] << " " << b1[2] << endl;
-        cout << "b2: " << b2[0] << " " << b2[1] << " " << b2[2] << endl;
-        cout << "b1: " << b3[0] << " " << b3[1] << " " << b3[2] << endl;
-
-        cout << "got plane and basis vectors" << endl;
 
         double nx = nn[0];
         double ny = nn[1];
@@ -334,9 +320,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 
             h[i] = a*px + b*py + c*pz + d;
 
-            cout << "h[i]: " << h[i] << endl;
             tmp[0] = px - h[i]*nx - ptx;
-            cout << "tmp[0]: " << tmp[0] << endl;
             tmp[1] = py - h[i]*ny - pty;
             tmp[2] = pz - h[i]*nz - ptz;
 
@@ -510,18 +494,6 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
         valarray<double> p2_1 = {p2[0], p2[1], p2[2]};
 
         valarray<double> cross(3);
-        // kinda messy - is there a better way to do this?
-
-        // cout << "val array first elem: " << getValArr(p0)[0] << endl;
-        // cout << "val array second elem: " << getValArr(p1)[0] << endl;
-        // double* temp = getArr(getValArr(p1) - getValArr(p0));
-        // cout << "subtract1: " << temp[0] << " " << temp[1] <<" " << temp[2] << endl;
-        //
-        // double* temp2 = getArr(getValArr(p2) - getValArr(p0));
-        // cout << "subtract2: " << temp2[0] << " " << temp2[1] << " " << temp2[2] << endl;
-
-        // double test[3] = {-0.183102, 0.889008, -1.56001};
-        // double test1[3] = {-1.6288, 2.306, -0.302002};
         myCross(p1_1 - p0_1, p2_1 - p0_1, cross);
         // cout << "cross0: " << cross[0] << cross[1] << cross[2] << endl;
         this->normals[v0] += cross;
@@ -539,46 +511,18 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
 
     for (int i = 0; i < this->numPoints; i++) {
         this->normals[i] = this->normals[i] / 6.0;
-        cout << "normal " << i << ":" << this->normals[i][0] << this->normals[i][1]
-            << this->normals[i][2] << endl;
     }
-    cout << "exiting" << endl;
 }
 
-// Cross product of two 3-vectors. Result (a x b) is stored in c[3].
- // void vtkCurvatures1::myCross(const double a[3], const double b[3], double c[3])
  void vtkCurvatures1::myCross(valarray<double> a, valarray<double> b, valarray<double>& c)
  {
-     cout << "a" << a[0] << endl;
-     cout << "b" << b[0] << endl;
-     cout << "a[1] * b[2] " << a[1]*b[2] << endl;
-     cout << "a[2] * b[1] " << a[2]*b[1] << endl;;
    double Cx = a[1]*b[2] - a[2]*b[1];
    double Cy = a[2] * b[0] - a[0] * b[2];
    double Cz = a[0] * b[1] - a[1] * b[0];
-   cout << " cx" << Cx << endl;
-   cout << "cy" << Cy << endl;
-   cout << "cz" << Cz << endl;
    c[0] = Cx;
    c[1] = Cy;
    c[2] = Cz;
  }
-
-double* vtkCurvatures1::getArr(const valarray<double> temp) {
-    double ans[3];
-    for (int i = 0; i < 3; i++) {
-        ans[i] = temp[i];
-    }
-    return ans;
-}
-
-valarray<double> vtkCurvatures1::getValArr(const double temp[3]) {
-    valarray<double> ans(3);
-    for (int i = 0; i < 3; i++) {
-        ans[i] = temp[i];
-    }
-    return ans;
-}
 
 double vtkCurvatures1::checkCurv(double curv) {
     if (fabs(curv) > MAX_CURV) {
@@ -587,6 +531,7 @@ double vtkCurvatures1::checkCurv(double curv) {
     }
     return curv;
 }
+
 void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
     if (prinCurvature.size() == 0) {
         this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
