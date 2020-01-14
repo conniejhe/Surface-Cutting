@@ -21,6 +21,7 @@
     <Documentation>This property specifies the input to the Curvature
     filter.</Documentation>
   </InputProperty>
+
   <IntVectorProperty command="SetInvertMeanCurvature"
                      default_values="0"
                      name="InvertMeanCurvature"
@@ -30,6 +31,7 @@
     calculation will be inverted. This is useful for meshes with
     inward-pointing normals.</Documentation>
   </IntVectorProperty>
+
   <IntVectorProperty command="SetCurvatureType"
                      default_values="0"
                      name="CurvatureType"
@@ -43,5 +45,6 @@
     <Documentation>This property specifies which type of curvature to
     compute.</Documentation>
   </IntVectorProperty>
+  
   <!-- End Curvatures -->
 </SourceProxy>

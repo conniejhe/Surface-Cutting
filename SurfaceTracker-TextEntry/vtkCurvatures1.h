@@ -8,51 +8,6 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkCurvatures1 - compute curvatures (Gauss and mean) of a Polydata object
-// .SECTION Description
-// vtkCurvatures1 takes a polydata input and computes the curvature of the
-// mesh at each point. Four possible methods of computation are available :
-//
-// Gauss Curvature
-// discrete Gauss curvature (K) computation,
-// \f$K(vertex v) = 2*PI-\sum_{facet neighbs f of v} (angle_f at v)\f$
-// The contribution of every facet is for the moment weighted by \f$Area(facet)/3\f$
-// The units of Gaussian Curvature are \f$[1/m^2]\f$
-//
-// Mean Curvature
-// \f$H(vertex v) = average over edges neighbs e of H(e)\f$
-// \f$H(edge e) = length(e)*dihedral_angle(e)\f$
-// NB: dihedral_angle is the ORIENTED angle between -PI and PI,
-// this means that the surface is assumed to be orientable
-// the computation creates the orientation
-// The units of Mean Curvature are [1/m]
-//
-// Maximum (\f$k_max\f$) and Minimum (\f$k_min\f$) Principal Curvatures
-// \f$k_max = H + sqrt(H^2 - K)\f$
-// \f$k_min = H - sqrt(H^2 - K)\f$
-// Excepting spherical and planar surfaces which have equal principal curvatures,
-// the curvature at a point on a surface varies with the direction one "sets off"
-// from the point. For all directions, the curvature will pass through two extrema:
-// a minimum (\f$k_min\f$) and a maximum (\f$k_max\f$) which occur at mutually orthogonal
-// directions to each other.
-//
-// NB. The sign of the Gauss curvature is a geometric ivariant, it should be +ve
-// when the surface looks like a sphere, -ve when it looks like a saddle,
-// however, the sign of the Mean curvature is not, it depends on the
-// convention for normals - This code assumes that normals point outwards (ie
-// from the surface of a sphere outwards). If a given mesh produces curvatures
-// of opposite senses then the flag InvertMeanCurvature can be set and the
-// Curvature reported by the Mean calculation will be inverted.
-//
-// .SECTION Thanks
-// Philip Batchelor philipp.batchelor@kcl.ac.uk for creating and contributing
-// the class and Andrew Maclean a.maclean@acfr.usyd.edu.au for cleanups and
-// fixes. Thanks also to Goodwin Lawlor for contributing patch to calculate
-// principal curvatures
-
-//
-// .SECTION See Also
-//
 
 #ifndef __vtkCurvatures1_h
 #define __vtkCurvatures1_h
@@ -60,11 +15,19 @@
 #include "vtkPolyDataAlgorithm.h"
 #include <vector>
 #include <tuple>
+#include <utility>
+#include <valarray>
+#include <ADL/Lapack.h>
 
 using std::vector;
 using std::tuple;
+using std::valarray;
+using std::pair;
 class vtkIdList;
 
+
+#define TOLERANCE 0.0001                   // for curvature calculations
+#define MAX_CURV 20
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
 #define VTK_CURVATURE_MAXIMUM 2
@@ -79,6 +42,14 @@ public:
   // Description:
   // Construct with curvature type set to Gauss
   static vtkCurvatures1 *New();
+
+  static double* getArr(const valarray<double>);
+  static valarray<double> getValArr(const double temp[3]);
+
+  static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
+  static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
+  static double checkCurv(double);
+  static bool addNeighbor(vtkSmartPointer<vtkIdList>, vtkIdType, bool);
 
   // Description:
   // Set/Get Curvature type
@@ -105,41 +76,59 @@ public:
   vtkBooleanMacro(InvertMeanCurvature,int);
 protected:
   vtkCurvatures1();
+  ~vtkCurvatures1() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+
+  // Description: Principal Curvatures
+  // Principal curvatures obtained by extracting eigenvalues from shape operator
+  // lambda_1 and lambda_2
+  void GetPrincipalCurvature(vtkPolyData* mesh, int ndepth, int dx, int dy, int dz);
+
+  // Description: Gauss Curvature
+  // Determinant of the shape operator or lambda_1 * lambda_2
+  void GetGaussCurvature(vtkPolyData *);
+
+  // Description: Mean Curvature
+  // Average of eigenvalues of shape operator (lambda_1 and lambda_2)
+  void GetMeanCurvature(vtkPolyData *);
+
   // Description:
-  // discrete Gauss curvature (K) computation,
-  // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetGaussCurvature(vtkPolyData *output);
+  // Max of principal curvatures
+  void GetMaximumCurvature(vtkPolyData *);
 
-  // discrete Mean curvature (H) computation,
-  // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetMeanCurvature(vtkPolyData *output);
+  // Description:
+  // min of principal curvatures
+  void GetMinimumCurvature(vtkPolyData *);
 
-  //Description:
-  // Maximum principal curvature \f$k_max = H + sqrt(H^2 -K)\f$
-  void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
+  void genNeighborhoods(vtkDataSet*, int);
 
-  //Description:
-  // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
-  void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
+  int getMaxNeighbors();
 
-  void GetPrincipalCurvature(int ndepth, int dx, int dy, int dz);
+  bool hasNormals();
 
+  bool hasUnitNormals();
+
+  void genUnitNormals(vtkPolyData* mesh);
+
+  void genNormals(vtkPolyData* mesh);
   // Vars
   int CurvatureType;
   int InvertMeanCurvature;
   int numPoints;
   int numPolys;
 
+  // vtkDoubleArray* prinCurvature;
+  vector<pair<double, double>> prinCurvature;
+
   vector<vtkSmartPointer<vtkIdList>> neighbors;
 
-  // maybe switch to vector of regular double arrays?
-  // so can easily do vtkMath operations on
-  vector<tuple<double, double, double>> normals;
-  vector<tuple<double, double, double>> unitNormals;
+  // vector<tuple<double, double, double>> normals;
+  vector<valarray<double>> normals;
+  // vector<tuple<double, double, double>> unitNormals;
+  vector<valarray<double>> unitNormals;
 
   // vtkPolyData* output_mesh;
 

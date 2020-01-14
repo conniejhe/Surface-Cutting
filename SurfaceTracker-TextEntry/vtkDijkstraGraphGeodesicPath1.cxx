@@ -178,7 +178,6 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
 
   vtkDoubleArray* temp = vtkDoubleArray::SafeDownCast(curvOutput->GetPointData()->GetArray(char_array));
 
-  //for debugging
   for (int i = 0; i < this->NumberOfVertices; i++) {
     this->Curvature->SetValue(i, temp->GetValue(i));
   }
