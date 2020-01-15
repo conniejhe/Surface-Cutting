@@ -281,7 +281,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
     int   LDC, LWORKC, NC;
     int   i,j;
 
-    for (int idx = 0; idx < this->numPoints; i++) {
+    for (int idx = 0; idx < this->numPoints; idx++) {
         double a, b, c, d;
         valarray<double> b1(3), b2(3), b3(3);
 
@@ -297,10 +297,14 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 
         valarray<double> pp = {ptx, pty, ptz};
         valarray<double> nn = this->unitNormals[idx];
+        if (idx == 517) cout << "unit nn: " << nn[0] << " " << nn[1] << " " << nn[2] << endl;
 
         vtkCurvatures1::getPlane(a, b, c, d, pp, nn);
 
         vtkCurvatures1::getBasisVectors(b1, b2, b3, nn);
+        if (idx == 517) cout << "b1: " << b1[0] << " " << b1[1] << " " << b1[2] << endl;
+        if (idx == 517) cout << "b2: " << b2[0] << " " << b2[1] << " " << b2[2] << endl;
+        if (idx == 517) cout << "b3: " << b3[0] << " " << b3[1] << " " << b3[2] << endl;
 
         double nx = nn[0];
         double ny = nn[1];
@@ -319,16 +323,19 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             pz = pt_nei[2] * dz;
 
             h[i] = a*px + b*py + c*pz + d;
+            if (idx == 517) cout << "h[i]: " << h[i] << endl;
 
             tmp[0] = px - h[i]*nx - ptx;
+            if (idx == 517) cout << "tmp[0]: " << tmp[0] << endl;
             tmp[1] = py - h[i]*ny - pty;
+            if (idx == 517) cout << "tmp[1]: " << tmp[1] << endl;
             tmp[2] = pz - h[i]*nz - ptz;
+            if (idx == 517) cout << "tmp[2]: " << tmp[2] << endl;
 
             u[i] = tmp[0]*b1[0] + tmp[1]*b1[1] + tmp[2]*b1[2];
-            cout << "u[i]: " << u[i] << endl;
+            if (idx == 517) cout << "u[i]: " << u[i] << endl;
             v[i] = tmp[0]*b2[0] + tmp[1]*b2[1] + tmp[2]*b2[2];
-            cout << "v[i]: " << v[i] << endl;
-
+            if (idx == 517) cout << "v[i]: " << v[i] << endl;
             two_uv[i] = 2.0*u[i]*v[i];
             uu[i] = u[i]*u[i];
             vv[i] = v[i]*v[i];
@@ -354,13 +361,15 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             BU[2]   += (vv[i]*2.0*h[i]);
         }
 
-        cout << U[0][0] << endl;
-        cout << U[0][1] << endl;
-        cout << U[0][2] << endl;
-        cout << U[0][0] << endl;
-        cout << U[1][1] << endl;
-        cout << U[1][2] << endl;
-        cout << U[2][2] << endl;
+        if (idx == 517) {
+            cout << U[0][0] << endl;
+            cout << U[0][1] << endl;
+            cout << U[0][2] << endl;
+            cout << U[0][0] << endl;
+            cout << U[1][1] << endl;
+            cout << U[1][2] << endl;
+            cout << U[2][2] << endl;
+        }
 
         U[1][0] = U[0][1];
         U[2][0] = U[0][2];
@@ -374,7 +383,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         N     = 3;
         NRHS  = 1;
 
-        cout << "about to do linalg stuff " << endl;
+        // cout << "about to do linalg stuff " << endl;
 
         ssytrf_(&UPLO, &N, (float*)U, &LDA, IPIV, work, &LWORK, &INFO);
 
@@ -398,7 +407,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 
         } else {
             this->prinCurvature.push_back(make_pair(0.0, 0.0));
-            cerr << "ERROR: systrs failed in GetPrincipalCurvature()" << endl;
+            // cerr << "ERROR: systrs failed in GetPrincipalCurvature()" << endl;
         }
     }
 }
@@ -445,10 +454,6 @@ void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
     }
 
     cout << "done generating unit normals" << endl;
-}
-
-double vtkCurvatures1::myNorm(valarray<double> temp) {
-    return sqrt(temp[0]*temp[0] + temp[1]*temp[1] + temp[2]*temp[2]);
 }
 
 void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
@@ -512,16 +517,22 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
     for (int i = 0; i < this->numPoints; i++) {
         this->normals[i] = this->normals[i] / 6.0;
     }
+
+    cout << "normal: " << this->normals[517][0] << " " <<
+        this->normals[517][1] << " " << this->normals[517][2] << endl;
 }
 
- void vtkCurvatures1::myCross(valarray<double> a, valarray<double> b, valarray<double>& c)
- {
-   double Cx = a[1]*b[2] - a[2]*b[1];
-   double Cy = a[2] * b[0] - a[0] * b[2];
-   double Cz = a[0] * b[1] - a[1] * b[0];
-   c[0] = Cx;
-   c[1] = Cy;
-   c[2] = Cz;
+double vtkCurvatures1::myNorm(valarray<double> temp) {
+    return sqrt(temp[0]*temp[0] + temp[1]*temp[1] + temp[2]*temp[2]);
+}
+
+ void vtkCurvatures1::myCross(valarray<double> a, valarray<double> b, valarray<double>& c) {
+    double Cx = a[1]*b[2] - a[2]*b[1];
+    double Cy = a[2] * b[0] - a[0] * b[2];
+    double Cz = a[0] * b[1] - a[1] * b[0];
+    c[0] = Cx;
+    c[1] = Cy;
+    c[2] = Cz;
  }
 
 double vtkCurvatures1::checkCurv(double curv) {
@@ -557,6 +568,8 @@ void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
 }
 //--------------------------------------------
 void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
+
+    cout << "we in gauss" << endl;
     if (prinCurvature.size() == 0) {
         this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
     }
@@ -577,7 +590,9 @@ void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
 
-    if (gaussCurvature) gaussCurvature->Delete();
+    // if (gaussCurvature) gaussCurvature->Delete();
+
+    cout << "we out gauss" << endl;
 }
 
 void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
@@ -592,9 +607,13 @@ void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
     double *maxCurvatureData = maxCurvature->GetPointer(0);
 
     for (int i = 0; i < this->prinCurvature.size(); i++) {
-        double temp = max(fabs(this->prinCurvature[i].first), fabs(this->prinCurvature[i].second));
+        double temp;
+        if (fabs(this->prinCurvature[i].first) > fabs(this->prinCurvature[i].second)) {
+            temp = this->prinCurvature[i].first;
+        } else {
+            temp = this->prinCurvature[i].second;
+        }
         maxCurvatureData[i] = -1 * checkCurv(temp);
-
     }
 
     mesh->GetPointData()->AddArray(maxCurvature);
@@ -602,7 +621,7 @@ void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
 
     vtkDebugMacro("Set Values of Maximum Curvature: Done");
 
-    if (maxCurvature) maxCurvature->Delete();
+    // if (maxCurvature) maxCurvature->Delete();
 }
 
 void vtkCurvatures1::GetMinimumCurvature(vtkPolyData *mesh) {
@@ -617,7 +636,12 @@ void vtkCurvatures1::GetMinimumCurvature(vtkPolyData *mesh) {
     double *minCurvatureData = minCurvature->GetPointer(0);
 
     for (int i = 0; i < this->prinCurvature.size(); i++) {
-        double temp = min(fabs(this->prinCurvature[i].first), fabs(this->prinCurvature[i].second));
+        double temp;
+        if (fabs(this->prinCurvature[i].first) < fabs(this->prinCurvature[i].second)) {
+            temp = this->prinCurvature[i].first;
+        } else {
+            temp = this->prinCurvature[i].second;
+        }
         minCurvatureData[i] = -1 * checkCurv(temp);
 
     }
@@ -627,7 +651,7 @@ void vtkCurvatures1::GetMinimumCurvature(vtkPolyData *mesh) {
 
     vtkDebugMacro("Set Values of Maximum Curvature: Done");
 
-    if (minCurvature) minCurvature->Delete();
+    // if (minCurvature) minCurvature->Delete();
 }
 
 //-------------------------------------------------------
@@ -688,6 +712,9 @@ int vtkCurvatures1::RequestData(
         vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
         return 1;
     }
+
+    cout << "getting output in vtkCurvs" << endl;
+    this->SetOutput(output);
 
     return 1;
 }
