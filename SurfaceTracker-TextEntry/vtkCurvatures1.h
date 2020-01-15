@@ -45,7 +45,7 @@ public:
   static vtkCurvatures1 *New();
 
   static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
-  static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
+  static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&, bool);
   static double checkCurv(double);
   static bool addNeighbor(vtkSmartPointer<vtkIdList>&, vtkIdType, bool);
 
