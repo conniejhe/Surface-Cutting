@@ -17,6 +17,7 @@
 #define __vtkMyDGGP_h
 
 #include "vtkPolyDataAlgorithm.h"
+#include "../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.h"
 
 class vtkIdList;
 

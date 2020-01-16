@@ -16,7 +16,7 @@ find_package(LAPACK)
 
 ADD_PARAVIEW_PLUGIN(DijkstraGraphGeodesicPathFilter "1.0"
   SERVER_MANAGER_XML vtkDijkstraGraphGeodesicPath1.xml
-  SERVER_MANAGER_SOURCES vtkDijkstraGraphGeodesicPath1.cxx vtkCurvatures1.cxx)
+  SERVER_MANAGER_SOURCES vtkDijkstraGraphGeodesicPath1.cxx ../Curvature/vtkCurvatures1.cxx)
 
 TARGET_LINK_LIBRARIES(DijkstraGraphGeodesicPathFilter
   ${DGGP_LIBRARY}

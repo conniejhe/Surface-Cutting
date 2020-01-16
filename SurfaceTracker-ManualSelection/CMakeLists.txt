@@ -7,10 +7,21 @@ endif()
 
 include(ParaViewPlugins)
 
+set(BLA_VENDOR Intel10_64lp)
+find_package(LAPACK)
+
 # create a paraview plugin containing server manager xml and the server
 # manager classes to build
 # this plugin can be loaded on the server side
 
 ADD_PARAVIEW_PLUGIN(MyDijkstra "1.0"
   SERVER_MANAGER_XML vtkMyDGGP.xml
-  SERVER_MANAGER_SOURCES vtkMyDGGP.cxx)
+  SERVER_MANAGER_SOURCES vtkMyDGGP.cxx
+  ../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.cxx
+  ../Curvature/vtkCurvatures1.cxx)
+
+  TARGET_LINK_LIBRARIES(MyDijkstra
+    ${DGGP1_LIBRARY}
+    /usr/lib/liblapack.so
+    /usr/lib/libblas.so
+  )

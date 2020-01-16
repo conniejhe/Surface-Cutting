@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCurvatures1.h"
+#include "../Curvature/vtkCurvatures1.h"
 #include <string>
 
 using std::string;

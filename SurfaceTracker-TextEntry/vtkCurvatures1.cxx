@@ -76,9 +76,6 @@ vtkCurvatures1::vtkCurvatures1()
 //-------------------------------------------------------//
 
 vtkCurvatures1::~vtkCurvatures1() {
-    // if (this->prinCurvature) {
-    //     this->prinCurvature->Delete();
-    // }
 }
 
 void vtkCurvatures1::getPlane(double &a, double &b, double& c, double&d, const valarray<double> p, const valarray<double> n) {
@@ -163,12 +160,6 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
 
     cout << "added depth 1 neighbors..." << endl;
 
-    int numnei = this->neighbors[4322]->GetNumberOfIds();
-    cout << "numnei of 4322: " << numnei << endl;
-    for (int j = 0; j < numnei; j++) {
-        cout << "neigh: " << this->neighbors[4322]->GetId(j) << endl;
-    }
-
     // for ndepth > 1, add neighbors of neighbors
     for (int j = 1; j < ndepth; j++) {
       vector<vtkSmartPointer<vtkIdList>> bigNghbd;
@@ -190,7 +181,6 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
       this->neighbors.clear(); // do we need this?
       this->neighbors = bigNghbd;
     }
-  //this->AdjacencyBuildTime.Modified();???
 }
 
 void vtkCurvatures1::copyNeighbors(vector<vtkSmartPointer<vtkIdList>> orig,
@@ -208,7 +198,7 @@ bool vtkCurvatures1::addNeighbor(vtkSmartPointer<vtkIdList>& list, vtkIdType nbr
     if (check) {
         if (list->IsId(nbr) == -1) {    // if vertex ID is not already in list
             list->InsertNextId(nbr);
-        } else {    // if vertex ID not already in list
+        } else {    // if vertex ID is  already in list
             return false;
         }
     } else {
@@ -225,10 +215,9 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 
     mesh->BuildLinks();
     genNeighborhoods(mesh, ndepth);
-    // have check to see if neighborhoods generated properly
+
     if (!this->hasUnitNormals()) {
         this->genUnitNormals(mesh);
-        cout << "done generating unit" << endl;
     }
 
     int maxn = getMaxNeighbors();
@@ -364,7 +353,6 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
 }
 
 int vtkCurvatures1::getMaxNeighbors() {
-    cout << "in getMaxNeighbors" << endl;
     int maxn = 0;
     for (int m = 0; m < this->numPoints; m++) {
         if (this->neighbors[m]->GetNumberOfIds() > maxn) {
@@ -375,19 +363,15 @@ int vtkCurvatures1::getMaxNeighbors() {
 }
 
 bool vtkCurvatures1::hasNormals() {
-    cout << "checking if has normals" << endl;
     return this->normals.size() > 0;
 }
 
 bool vtkCurvatures1::hasUnitNormals() {
-    cout << "checking if has unit normals" << endl;
     return this->unitNormals.size() > 0;
 }
 
 void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
-    cout << "generating unit normals" << endl;
     if (!this->hasNormals()) {
-        cout << "no normals" << endl;
         this->genNormals(mesh);
     }
     for (int i = 0; i < this->numPoints; i++) {
@@ -403,8 +387,6 @@ void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
             this->unitNormals.push_back(normal);
         }
     }
-
-    cout << "done generating unit normals" << endl;
 }
 
 void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
@@ -417,8 +399,6 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
     mesh->BuildLinks();
     const int F = mesh->GetNumberOfCells();
 
-
-    cout << "about to go into for loop in genNormals" << endl;
     for (int f = 0; f < F ; f++) {
         vtkNew<vtkIdList> vertices;
         double p0[3];
@@ -454,8 +434,6 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
         myCross(p0_1 - p2_1, p1_1 - p2_1, cross2);
         this->normals[v2] += cross2;
     }
-
-    cout << "done with for loop in gen normals" << endl;
 
     for (int i = 0; i < this->numPoints; i++) {
         this->normals[i] = this->normals[i] / 6.0;
@@ -504,12 +482,11 @@ void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
 
     vtkDebugMacro("Set Values of Mean Curvature: Done");
 
-    if (meanCurvature) meanCurvature->Delete();
+    // if (meanCurvature) meanCurvature->Delete();
 }
 //--------------------------------------------
 void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
 
-    cout << "we in gauss" << endl;
     if (prinCurvature.size() == 0) {
         this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
     }
@@ -530,9 +507,6 @@ void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
 
-    // if (gaussCurvature) gaussCurvature->Delete();
-
-    cout << "we out gauss" << endl;
 }
 
 void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
@@ -546,9 +520,6 @@ void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
     // Get the array so we can write to it directly
     double *maxCurvatureData = maxCurvature->GetPointer(0);
 
-    cout << "Writing to file" << endl;
-    ofstream myfile;
-    myfile.open ("maxCurv_depth1_PV.txt");
     for (int i = 0; i < this->prinCurvature.size(); i++) {
         double temp;
         if (fabs(this->prinCurvature[i].first) > fabs(this->prinCurvature[i].second)) {
@@ -557,9 +528,7 @@ void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
             temp = this->prinCurvature[i].second;
         }
         maxCurvatureData[i] = -1 * checkCurv(temp);
-        myfile << maxCurvatureData[i] << "\n";
     }
-    myfile.close();
 
     mesh->GetPointData()->AddArray(maxCurvature);
     mesh->GetPointData()->SetActiveScalars("Maximum_Curvature");
@@ -657,9 +626,6 @@ int vtkCurvatures1::RequestData(
         vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
         return 1;
     }
-
-    cout << "getting output in vtkCurvs" << endl;
-    this->SetOutput(output);
 
     return 1;
 }

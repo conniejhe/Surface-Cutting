@@ -18,14 +18,12 @@
 #include <tuple>
 #include <utility>
 #include <valarray>
-#include <ADL/Lapack.h>
+// #include <ADL/Lapack.h>
 
 using std::vector;
 using std::tuple;
 using std::valarray;
 using std::pair;
-// class vtkIdList;
-
 
 #define TOLERANCE 0.0001                   // for curvature calculations
 #define MAX_CURV 20
@@ -42,7 +40,7 @@ public:
 
   // Description:
   // Construct with curvature type set to Gauss
-  static vtkCurvatures1 *New();
+  static vtkCurvatures1* New();
 
   static void getPlane(double&, double&, double& , double&, const valarray<double>, const valarray<double>);
   static void getBasisVectors(valarray<double>&, valarray<double>&, valarray<double>&, const valarray<double>&);
@@ -61,6 +59,7 @@ public:
   // DataArray "Mean_Curvature"
   vtkSetMacro(CurvatureType,int);
   vtkGetMacro(CurvatureType,int);
+
   void SetCurvatureTypeToGaussian()
   { this->SetCurvatureType(VTK_CURVATURE_GAUSS); }
   void SetCurvatureTypeToMean()
