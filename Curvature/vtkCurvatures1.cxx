@@ -72,6 +72,10 @@ vtkCurvatures1::vtkCurvatures1()
 {
   this->CurvatureType = 0;
   this->InvertMeanCurvature = 0;
+  this->ndepth = 2;
+  this->dx = 1;
+  this->dy = 1;
+  this->dz = 1;
 }
 //-------------------------------------------------------//
 
@@ -131,17 +135,20 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
     // clear neighborhoods
     this->neighbors.clear();
 
-    // initialize neighborhoods
+    // initialize neighborhoods with new vtkIdLists
     for (int i = 0; i < this->numPoints; i++) {
         this->neighbors.push_back(vtkSmartPointer<vtkIdList>::New());
     }
 
     vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
     vtkIdType ncells = pd->GetNumberOfCells();
+
+    // iterate through cells on mesh
     for (i = 0; i < ncells; i++) {
-        // Method 2
         vtkIdType npts;
         vtkIdType* pts;
+
+        // extract vertices that comprise current cell
         pd->GetCellPoints(i, npts, pts);
         if (npts != 3) {
             cerr << "number of points that comprise cell is not 3" << endl;
@@ -150,39 +157,44 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
         b = pts[1];
         c = pts[2];
 
-        if (addNeighbor(this->neighbors[a], b, true))
-            addNeighbor(this->neighbors[b], a, false);
-        if (addNeighbor(this->neighbors[a], c, true))
-            addNeighbor(this->neighbors[c], a, false);
-        if (addNeighbor(this->neighbors[b], c, true))
-            addNeighbor(this->neighbors[c], b, false);
+        if (addNeighbor(this->neighbors[a], b, true))  // check for duplicates
+            addNeighbor(this->neighbors[b], a, false); // don't need to check
+        if (addNeighbor(this->neighbors[a], c, true))  // ...
+            addNeighbor(this->neighbors[c], a, false); // ...
+        if (addNeighbor(this->neighbors[b], c, true))  // ...
+            addNeighbor(this->neighbors[c], b, false); // ...
     }
-
-    cout << "added depth 1 neighbors..." << endl;
 
     // for ndepth > 1, add neighbors of neighbors
     for (int j = 1; j < ndepth; j++) {
-      vector<vtkSmartPointer<vtkIdList>> bigNghbd;
-      copyNeighbors(this->neighbors, bigNghbd);
+        // create and initialize new bigger neighborhood
+        vector<vtkSmartPointer<vtkIdList>> bigNghbd;
+        copyNeighbors(this->neighbors, bigNghbd);
 
-      for (i = 0; i < this->numPoints; i++) {
+        // iterate through vertices
+        for (i = 0; i < this->numPoints; i++) {
           int numn = this->neighbors[i]->GetNumberOfIds();
+
+          // iterate through each neighbor of ith vertex
           for (int k = 0; k < numn; k++) {
               vtkIdType nei = this->neighbors[i]->GetId(k);
               int newnumn = this->neighbors[nei]->GetNumberOfIds();
 
+              // iterate through neighbors of current neighbor (k)
+              // and add to neighbor list of vertex i
               for (int l = 0; l < newnumn; l++) {
                   vtkIdType newnei = this->neighbors[nei]->GetId(l);
                   addNeighbor(bigNghbd[i], newnei, true);
               }
           }
-      }
+        }
 
-      this->neighbors.clear(); // do we need this?
-      this->neighbors = bigNghbd;
+        this->neighbors.clear(); // do we need this?
+        this->neighbors = bigNghbd;
     }
 }
 
+/* deep copy contents of orig into copy */
 void vtkCurvatures1::copyNeighbors(vector<vtkSmartPointer<vtkIdList>> orig,
     vector<vtkSmartPointer<vtkIdList>>& copy) {
         for (int i = 0; i < this->numPoints; i++) {
@@ -198,7 +210,7 @@ bool vtkCurvatures1::addNeighbor(vtkSmartPointer<vtkIdList>& list, vtkIdType nbr
     if (check) {
         if (list->IsId(nbr) == -1) {    // if vertex ID is not already in list
             list->InsertNextId(nbr);
-        } else {    // if vertex ID is  already in list
+        } else {                        // if vertex ID is  already in list
             return false;
         }
     } else {
@@ -208,22 +220,34 @@ bool vtkCurvatures1::addNeighbor(vtkSmartPointer<vtkIdList>& list, vtkIdType nbr
 }
 
 void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx, int dy, int dz) {
+
+    this->prinCurvature.clear();
+
     // ensure that ndepth isn't too large or too small
     if (ndepth < 1 || ndepth > 1000) {
         ndepth = 2;
     }
 
     mesh->BuildLinks();
+
+    // generate neighborhood of depth ndepth for each vertex
     genNeighborhoods(mesh, ndepth);
-    // have check to see if neighborhoods generated properly
+
+    // if currently no unit normals, then generate them
     if (!this->hasUnitNormals()) {
         this->genUnitNormals(mesh);
+        if (!this->hasUnitNormals()) {
+            cerr << "ERROR: cannot generate neighborhoods" << endl;
+            return;
+        }
     }
 
+    // get max number of neighbors to initialize the size of the following arrays
     int maxn = getMaxNeighbors();
 
     maxn++;
 
+    // used for shape operator calculation
     valarray<float> h(maxn);
     valarray<float> u(maxn);
     valarray<float> v(maxn);
@@ -231,6 +255,8 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
     valarray<float> vv(maxn);
     valarray<float> two_uv(maxn);
 
+    // used for shape operator calculation
+    // and eigenvalue calculation via lapack libraries
     float tmp[3],U[3][3],BU[3],work[3],workc[5];
     float rval;
     int   IPIV[4];
@@ -240,14 +266,18 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
     int   LDC, LWORKC, NC;
     int   i,j;
 
+    // iterate through each vertex on surface and compute principal curvatures
     for (int idx = 0; idx < this->numPoints; idx++) {
+
+        // initialize variables to store tangent plane parameters
         double a, b, c, d;
+
+        // initialize arrays to store plane basis vectors
         valarray<double> b1(3);
         valarray<double> b2(3);
         valarray<double> b3(3);
 
-        int num_nei = this->neighbors[idx]->GetNumberOfIds();
-
+        // extract x, y, z coordinates for current idx
         double ptx, pty, ptz;
         double pt[3];
         mesh->GetPoint(idx, pt);
@@ -266,10 +296,14 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         double ny = nn[1];
         double nz = nn[2];
 
+        int num_nei = this->neighbors[idx]->GetNumberOfIds();
+
+        // iterate through neighbors
         for (i = 0; i < num_nei; i++) {
             vtkIdType nei = this->neighbors[idx]->GetId(i);
             if (nei < 0) continue;
 
+            // extract x, y, z coordinates of ith neighbor
             double px, py, pz;
             double pt_nei[3];
             mesh->GetPoint(nei, pt_nei);
@@ -278,7 +312,12 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             py = pt_nei[1] * dy;
             pz = pt_nei[2] * dz;
 
+            // h[i] is the distance from the neighbor point to the tangent plane
+            // defined by original point normal
             h[i] = a*px + b*py + c*pz + d;
+
+            // tmp holds x, y, z coords of neighbor point projected onto tangent
+            // plane - original point
             tmp[0] = px - h[i]*nx - ptx;
             tmp[1] = py - h[i]*ny - pty;
             tmp[2] = pz - h[i]*nz - ptz;
@@ -299,6 +338,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             }
         }
 
+        // create matrix to plug into equation solver
         for(i=0; i < num_nei; i++) {
             U[0][0] += (uu[i]*uu[i]);
             U[0][1] += (uu[i]*two_uv[i]);
@@ -311,6 +351,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             BU[2]   += (vv[i]*2.0*h[i]);
         }
 
+        // matrix is symmetric
         U[1][0] = U[0][1];
         U[2][0] = U[0][2];
         U[2][1] = U[1][2];
@@ -323,13 +364,16 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
         N     = 3;
         NRHS  = 1;
 
-        // cout << "about to do linalg stuff " << endl;
-
+        // compute factorization of real symmetric matrix U
         ssytrf_(&UPLO, &N, (float*)U, &LDA, IPIV, work, &LWORK, &INFO);
 
         if(INFO == 0) {
+
+            // solve system of linear equations to obtain shape operator
             ssytrs_(&UPLO, &N, &NRHS, (float*)U, &LDA, IPIV, BU,
               &LDB , &INFO);
+              
+            // matrix C is the shape operator for this vertex
             C[0][0] = BU[0];
             C[0][1] = BU[1];
             C[1][0] = BU[1];
@@ -371,13 +415,16 @@ bool vtkCurvatures1::hasUnitNormals() {
 }
 
 void vtkCurvatures1::genUnitNormals(vtkPolyData* mesh) {
+    // check if normals exist for this surface
     if (!this->hasNormals()) {
+        // if not, then generate normals first
         this->genNormals(mesh);
     }
+    // iterate through vertices
     for (int i = 0; i < this->numPoints; i++) {
         valarray<double> normal = this->normals[i];
         double norm = myNorm(normal);
-        if (norm != 0) {
+        if (norm != 0) {    // if norm is not 0, then normalize the normal vector
             double x = normal[0]/norm;
             double y = normal[1]/norm;
             double z = normal[2]/norm;
@@ -399,6 +446,8 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
     mesh->BuildLinks();
     const int F = mesh->GetNumberOfCells();
 
+    // iterate through triangles
+    // and accumulate the contribution from that triangle to each of its vertices
     for (int f = 0; f < F ; f++) {
         vtkNew<vtkIdList> vertices;
         double p0[3];
@@ -418,6 +467,8 @@ void vtkCurvatures1::genNormals(vtkPolyData* mesh) {
         mesh->GetPoint(v1, p1);
         mesh->GetPoint(v2, p2);
 
+        // create valarray vectors for each point so that we can use
+        // element-wise operations
         valarray<double> p0_1 = {p0[0], p0[1], p0[2]};
         valarray<double> p1_1 = {p1[0], p1[1], p1[2]};
         valarray<double> p2_1 = {p2[0], p2[1], p2[2]};
@@ -462,9 +513,9 @@ double vtkCurvatures1::checkCurv(double curv) {
 }
 
 void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
-    if (prinCurvature.size() == 0) {
-        this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
-    }
+    this->GetPrincipalCurvature(mesh, this->ndepth, this->dx, this->dy, this->dz);
+
+    cout << "in mean" << endl;
     const vtkNew<vtkDoubleArray> gaussCurvature;
     gaussCurvature->SetName("Mean_Curvature");
     gaussCurvature->SetNumberOfComponents(1);
@@ -472,22 +523,25 @@ void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
     // Get the array so we can write to it directly
     double *gaussCurvatureData = gaussCurvature->GetPointer(0);
 
+    cout << "approaching for loop in mean" << endl;
+
     for (int i = 0; i < this->prinCurvature.size(); i++) {
         double temp = (this->prinCurvature[i].first + this->prinCurvature[i].second)/2;
         gaussCurvatureData[i] = -1 * checkCurv(temp);
     }
 
+    cout << "done for loop" << endl;
+
     mesh->GetPointData()->AddArray(gaussCurvature);
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
+    cout << "out mean" << endl;
 
 }
 //--------------------------------------------
 void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
-    if (prinCurvature.size() == 0) {
-        this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
-    }
+    this->GetPrincipalCurvature(mesh, this->ndepth, this->dx, this->dy, this->dz);
     const vtkNew<vtkDoubleArray> gaussCurvature;
     gaussCurvature->SetName("Gauss_Curvature");
     gaussCurvature->SetNumberOfComponents(1);
@@ -507,10 +561,7 @@ void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {
 }
 
 void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
-    if (prinCurvature.size() == 0) {
-        this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
-    }
-
+    this->GetPrincipalCurvature(mesh, this->ndepth, this->dx, this->dy, this->dz);
     const vtkNew<vtkDoubleArray> maxCurvature;
     maxCurvature->SetName("Maximum_Curvature");
     maxCurvature->SetNumberOfComponents(1);
@@ -535,9 +586,7 @@ void vtkCurvatures1::GetMaximumCurvature(vtkPolyData *mesh) {
 }
 
 void vtkCurvatures1::GetMinimumCurvature(vtkPolyData *mesh) {
-    if (prinCurvature.size() == 0) {
-        this->GetPrincipalCurvature(mesh, 2, 1, 1, 1);
-    }
+    this->GetPrincipalCurvature(mesh, this->ndepth, this->dx, this->dy, this->dz);
     const vtkNew<vtkDoubleArray> minCurvature;
     minCurvature->SetName("Minimum_Curvature");
     minCurvature->SetNumberOfComponents(1);
@@ -585,37 +634,22 @@ int vtkCurvatures1::RequestData(
     output->GetPointData()->PassData(input->GetPointData());
     output->GetFieldData()->PassData(input->GetFieldData());
 
+    this->numPoints = output->GetNumberOfPoints();
+
     //-------------------------------------------------------//
     //    Set Curvatures as PointData  Scalars               //
     //-------------------------------------------------------//
 
-    // eventually these will be global variables that people can configure
-    // via property panel?
-
-    this->numPoints = output->GetNumberOfPoints();
-    this->numPolys = output->GetNumberOfPolys();
-
-    int ndepth = 2;
-    int dx = 1;
-    int dy = 1;
-    int dz = 1;
-
-    // this->GetPrincipalCurvature(output, ndepth, dx, dy, dz);
-
     if ( this->CurvatureType == VTK_CURVATURE_GAUSS ) {
-        cout << "gauss" << endl;
         this->GetGaussCurvature(output);
     }
     else if ( this->CurvatureType == VTK_CURVATURE_MEAN ) {
-        cout << "mean" << endl;
         this->GetMeanCurvature(output);
     }
     else if ( this->CurvatureType ==  VTK_CURVATURE_MAXIMUM ) {
-        cout << "max" << endl;
         this->GetMaximumCurvature(output);
     }
     else if ( this->CurvatureType ==  VTK_CURVATURE_MINIMUM ) {
-        cout << "min" << endl;
         this->GetMinimumCurvature(output);
     }
     else {

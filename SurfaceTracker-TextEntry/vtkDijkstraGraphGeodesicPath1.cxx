@@ -54,7 +54,11 @@ vtkDijkstraGraphGeodesicPath1::vtkDijkstraGraphGeodesicPath1()
   this->maxCurv = -1E20;
   this->minCurv = 1E20;
   this->LineType = 0;
-  this->CurvatureType = 0;
+  this->CurvatureType = 2;
+  this->ndepth = 2;
+  this->dx = 1;
+  this->dy = 1;
+  this->dz = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +167,11 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
     case 3:
       curv->SetCurvatureTypeToMinimum();
   }
+
+  curv->Setdx(this->dx);
+  curv->Setdy(this->dy);
+  curv->Setdz(this->dz);
+  curv->Setndepth(this->ndepth);
 
   curv->Update();
 

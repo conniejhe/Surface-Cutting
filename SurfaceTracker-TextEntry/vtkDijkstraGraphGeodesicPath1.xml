@@ -60,7 +60,7 @@
          name="CurvatureType"
          command="SetCurvatureType"
          number_of_elements="1"
-         default_values="0" >
+         default_values="2" >
        <EnumerationDomain name="enum">
          <Entry value="0" text="Gauss"/>
          <Entry value="1" text="Mean"/>
@@ -71,6 +71,54 @@
          This propery specifies which type of curve to draw.
        </Documentation>
      </IntVectorProperty>
+
+     <IntVectorProperty
+        name="ndepth"
+        label="Neighborhood Depth"
+        command="Setndepth"
+        number_of_elements="1"
+        animateable="1"
+        default_values="2" >
+        <Documentation>
+          Set neighborhood depth. Default is 2.
+        </Documentation>
+    </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="dx"
+        label="Voxel size (dx)"
+        command="Setdx"
+        number_of_elements="1"
+        animateable="1"
+        default_values="1" >
+        <Documentation>
+          Set dx.
+        </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty
+       name="dy"
+       label="Voxel size (dy)"
+       command="Setdy"
+       number_of_elements="1"
+       animateable="1"
+       default_values="1" >
+       <Documentation>
+         Set dy.
+       </Documentation>
+   </DoubleVectorProperty>
+
+   <DoubleVectorProperty
+      name="dz"
+      label="Voxel size (dz)"
+      command="Setdz"
+      number_of_elements="1"
+      animateable="1"
+      default_values="1" >
+      <Documentation>
+        Set dz.
+      </Documentation>
+  </DoubleVectorProperty>
 
    </SourceProxy>
  </ProxyGroup>

@@ -98,6 +98,18 @@ public:
   void SetCurvatureTypeToMinimum()
   { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
 
+  vtkSetMacro(ndepth, int);
+  vtkGetMacro(ndepth, int);
+
+  vtkSetMacro(dx, double);
+  vtkGetMacro(dx, double);
+
+  vtkSetMacro(dy, double);
+  vtkGetMacro(dy, double);
+
+  vtkSetMacro(dz, double);
+  vtkGetMacro(dz, double);
+
   //@{
   /**
    * The vertex ids (of the input polydata) on the shortest path
@@ -211,6 +223,8 @@ protected:
 
   int LineType;
   int CurvatureType;
+  int ndepth;
+  double dx, dy, dz;
 
 private:
   vtkDijkstraGraphGeodesicPath1(const vtkDijkstraGraphGeodesicPath1&) = delete;

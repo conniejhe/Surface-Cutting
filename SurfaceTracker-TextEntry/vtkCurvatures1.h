@@ -136,6 +136,7 @@ protected:
   int ndepth;
   double dx, dy, dz;
   int numPoints;
+  int numPolys;
 
   // vtkDoubleArray* prinCurvature;
   vector<pair<double, double>> prinCurvature;
