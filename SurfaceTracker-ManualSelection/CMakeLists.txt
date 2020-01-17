@@ -17,8 +17,8 @@ find_package(LAPACK)
 ADD_PARAVIEW_PLUGIN(MyDijkstra "1.0"
   SERVER_MANAGER_XML vtkMyDGGP.xml
   SERVER_MANAGER_SOURCES vtkMyDGGP.cxx
-  ../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.h
-  ../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.cxx)
+  ../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.cxx
+  ../Curvature/vtkCurvatures1.cxx)
 
   TARGET_LINK_LIBRARIES(MyDijkstra
     ${DGGP1_LIBRARY}

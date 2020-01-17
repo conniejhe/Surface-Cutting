@@ -12,7 +12,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.h"
+#include "vtkDijkstraGraphGeodesicPath1.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -40,9 +40,9 @@ vtkMyDGGP::vtkMyDGGP() {
 }
 
 vtkMyDGGP::~vtkMyDGGP() {
-  if (this->UserPoints) {
-      this->UserPoints->Delete();
-  }
+  // if (this->UserPoints) {
+  //     this->UserPoints->Delete();
+  // }
   if (this->IdList) {
       this->IdList->Delete();
   }
@@ -94,7 +94,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
       this->UserPoints->InsertNextId(origIds->GetValue(i));
       //cout << origIds->GetValue(i) << endl;
   }
-  origIds->Delete();
+  // origIds->Delete();
   cout << "Extracted Point IDs from selection object." << endl;
   //appender to collect all geodesic paths
   vtkSmartPointer<vtkAppendPolyData> appender =
