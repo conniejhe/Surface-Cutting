@@ -38,12 +38,10 @@ This plugin calculates the curvature of the brain surface at each vertex. It imp
   - *pipeline browser*: Brain surface that is being processed (vtkPolyData); usually rendered from a BYU file  
   - *property panel*: 
     - set curvature calculation type (mean, gauss, max, min)
+    - set neighorhood depth (int)
+    - set voxel dimensions [dx, dy, dz] (double)
     
   **Output**: A vtkPolyData object that is the same as the input but with an extra Curvature array in Point Data.
-
-**Notes**:
- - This is currenlty still in development. Will add neighborhood depth and voxel dimensions (dx, dy, dz) to the property panel so that users can configure this.
- - currently compiles as a stand-alone plugin but when it is used by another plugin (i.e. SurfaceTracker-TextEntry), it fails to load into PV for some reason. 
  
 ### SurfaceTracker-TextEntry ###
 This plugin connects two user-inputted points and has three different modes which determines how the points are connected:
@@ -61,8 +59,13 @@ Paraview has an existing filter that calculates geodesic shortest path using Dij
     - set line type (geodesic, gyrus, and sulcus) 
     - set curvature type used for cost function (mean, gauss, max, min)
       - may change this later because should really only be using max curvature
+    - set neighborhood depth (int)
+    - set voxel dimensions [dx, dy, dz] (double)
     
   **Output**: A set of lines corresponding to the curve generated to connect the two points.
+  
+**Notes**: 
+ - May consider adding curvature filter output as an input into this plugin to reduce redundancy.
 
 ### SurfaceTracker-ManualSelection ###
 This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. The difference is that instead of inputting the start and end vertices, the user can freely select points along the surface and this filter will connect all of these vertices with curves (the three modes of geodesic, gyrus, and sulcus exist as well).
@@ -78,7 +81,8 @@ This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. Th
   
 **Notes**: 
  - This is supposed to work on a string of consecutive points (not just two points) so it is better than the previous method in that way. 
- - If you want to connect different segments using two different modes (geodesicm gyrus, and sulcus), you will need to use the filter twice on two different extracted point selections and then combine them later one with the "Append datasets" filter. 
+ - If you want to connect different segments using two different modes (geodesic, gyrus, and sulcus), you will need to use the filter twice on two different extracted point selections and then combine them later one with the "Append datasets" filter (this is a bit of a hassle, so I will work on finding a better solution for this)
+ - May set curvature filter output as an input to this plugin as well to reduce redundancy (of property panel attributes)
  - Currently, there is a bug where if you switch the line type too many times (>2 times) the program will crash. This is suspected to be due to a memory leak somewhere.
 
 ### SurfaceCut-ImplicitSelectionLoop ###
@@ -125,4 +129,4 @@ All of the above plugins can be built using these commands:
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 Jan 13)
+Last Edited by: Connie He (2020 Jan 17)
