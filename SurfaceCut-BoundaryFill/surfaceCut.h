@@ -30,14 +30,6 @@ protected:
 
     int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-    // void splitComponents(vtkPolyData *in);
-    //
-    // vtkIdList* findReachableNodes(vtkPolyData* in);
-    //
-    // vtkIdList* BFS(int compNum, vtkIdType src, vtkIntArray* visited);
-    //
-    // void cut(vtkPolyData* in, vtkPolyData* out, vtkIdList* list);
-
     void BuildAdjacency(vtkDataSet *inData);
 
     void ColorBoundary();

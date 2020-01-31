@@ -41,7 +41,7 @@
       </InputProperty>
 
       <InputProperty
-         name="Outside Point"
+         name="Inside Point"
          port_index="2"
          command="SetInputConnection">
         <ProxyGroupDomain name="groups">

@@ -40,9 +40,9 @@ vtkMyDGGP::vtkMyDGGP() {
 }
 
 vtkMyDGGP::~vtkMyDGGP() {
-  // if (this->UserPoints) {
-  //     this->UserPoints->Delete();
-  // }
+  if (this->UserPoints) {
+      this->UserPoints->Delete();
+  }
   if (this->IdList) {
       this->IdList->Delete();
   }
@@ -87,14 +87,13 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  vtkIdTypeArray* origIds = vtkIdTypeArray::SafeDownCast(
+  vtkSmartPointer<vtkIdTypeArray> origIds = vtkIdTypeArray::SafeDownCast(
     sel->GetPointData()->GetArray("vtkOriginalPointIds"));
 
   for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
       //cout << origIds->GetValue(i) << endl;
   }
-  // origIds->Delete();
   cout << "Extracted Point IDs from selection object." << endl;
   //appender to collect all geodesic paths
   vtkSmartPointer<vtkAppendPolyData> appender =
@@ -122,7 +121,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     dijkstra->Update();
     vtkSmartPointer<vtkIdList> tempIdList = dijkstra->GetIdList();
 
-    for (vtkIdType j = 0; j < tempIdList->GetNumberOfIds(); j++) {
+    for (vtkIdType j = tempIdList->GetNumberOfIds() - 1; j >= 0; j--) {
       this->IdList->InsertUniqueId(tempIdList->GetId(j));
     }
 
@@ -152,6 +151,9 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     originalPointIds->InsertNextValue(this->IdList->GetId(i));
   }
   outputPD->AddArray(originalPointIds);
+
+  // why does deleting this prevent seg fault??
+  // origIds->Delete();
 
   return 1;
 }

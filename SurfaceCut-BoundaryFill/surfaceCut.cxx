@@ -10,12 +10,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkImplicitSelectionLoop.h"
-#include "vtkClipPolyData.h"
-#include "vtkSelectPolyData.h"
+#include "vtkCellData.h"
 #include "vtkCleanPolyData.h"
-#include "vtkAppendPolyData.h"
+#include "vtkUnstructuredGrid.h"
+
 #include <queue>
 #include <unordered_map>
 #include <vector>
@@ -80,7 +78,8 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     vtkUnstructuredGrid *sel = vtkUnstructuredGrid::SafeDownCast(
         selectionInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-    vtkPolyData *output = vtkPolyData::SafeDownCast(
+    vtkPolyData* output = vtkPolyData::New();
+    vtkPolyData *data_output = vtkPolyData::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     cout << "Obtained Data Objects." << endl;
@@ -88,6 +87,11 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     if (!output || !input || !line) {
     return 0;
     }
+
+    output->CopyStructure(input);
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+    output->GetFieldData()->PassData(input->GetFieldData());
 
     this->NumberOfVertices = input->GetNumberOfPoints();
 
@@ -112,31 +116,15 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     cout << "Extracted Point IDs from loop." << endl;
 
-    vtkPolyData* temp = vtkPolyData::New();
+    ColorBoundary();
 
-    cout << "created a new polydata" << endl;
-
-    temp->ShallowCopy(input);
-
-    cout << "shallow copied input polydata object" << endl;
-
-
+    BuildAdjacency(output);
 
     cout << "built Adjacency" << endl;
 
-    // splitComponents(temp);
+    FillBoundary(output, this->insidePoint, 1, 2);
 
-    ColorBoundary();
-
-    BuildAdjacency(temp);
-
-    FillBoundary(temp, this->insidePoint, 1, 2);
-
-    CutSurface(temp, output);
-
-    // vtkIdList* reachableNodes = findReachableNodes(temp);
-    //
-    // cut(temp, output, reachableNodes);
+    CutSurface(output,data_output);
 
     return 1;
 }
@@ -146,18 +134,31 @@ void surfaceCut::ColorBoundary() {
     this->colorArray->SetNumberOfComponents(1);
     this->colorArray->SetNumberOfTuples(this->NumberOfVertices);
 
+    // initialize
+    for (int j = 0; j < this->NumberOfVertices; j++) {
+        this->colorArray->SetValue(j, 0);
+    }
+
     for (int i = 0; i < this->UserPoints->GetNumberOfIds(); i++) {
         vtkIdType curr_id = this->UserPoints->GetId(i);
+        if ((curr_id == 2005) || (curr_id == 2153) || (curr_id == 2169)) {
+            cout << "vertex " << curr_id << " is being marked as 1" << endl;
+        }
         this->colorArray->SetValue(curr_id, 1);
+
     }
 }
 
 void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
     int bound_color, int fill_color) {
+
     vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
     if (this->colorArray->GetValue(i) != bound_color &&
         this->colorArray->GetValue(i) != fill_color)
     {
+        if ((i == 0) || (i == 1) || (i == 2) || (i == 3)) {
+            cout << "error: vertex " << i << " is being marked" << endl;
+        }
         this->colorArray->SetValue(i, fill_color);
         int length = this->adjacencyMatrix[i]->GetNumberOfIds();
 
@@ -171,10 +172,6 @@ void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
 void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
     cout << "starting to cut" << endl;
 
-    // out->CopyStructure(in);
-    // out->GetPointData()->PassData(in->GetPointData());
-    // out->GetFieldData()->PassData(in->GetFieldData());
-
     vtkIdType F = in->GetNumberOfCells();
 
     in->BuildLinks();
@@ -182,37 +179,31 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
     vtkIdType a, b, c;
 
     for (vtkIdType f = 0; f < F; f++) {
-        cout << "on cell: " << f << endl;
+        // cout << "on cell: " << f << endl;
         vtkIdType npts;
         vtkIdType* pts;
 
         in->GetCellPoints(f, npts, pts);
-
         a = pts[0];
         b = pts[1];
         c = pts[2];
 
-        cout << "wtf" << endl;
-
+        // keeps cell only if all three vertices are colored
         if (!(this->colorArray->GetValue(a)) || !(this->colorArray->GetValue(b))
             || !(this->colorArray->GetValue(c))) {
-            cout << "deleting cell: " << f << endl;
+            // cout << "deleting cell: " << f << endl;
             in->DeleteCell(f);
         }
-
-        // set colorArray[a], [b], [c] to 1??
-        // or have separate array that basically marks these cells for deletion
-        // but doesn't actually delete until after in a separate loop?
     }
 
     in->RemoveDeletedCells();
-
-    cout << "done with cut" << endl;
 
     vtkCleanPolyData *Clean = vtkCleanPolyData::New();
     Clean->SetInputData(in);
     Clean->Update();
     out->ShallowCopy(Clean->GetOutput());
+
+    cout << "done with cut" << endl;
 }
 
 // modeled off of buildAdjacency method in vtkDijkstraGraphGeodesicPath
@@ -258,125 +249,6 @@ void surfaceCut::BuildAdjacency(vtkDataSet *inData)
 
   //this->AdjacencyBuildTime.Modified();???
 }
-
-// vtkIdList* surfaceCut::BFS(int compNum, vtkIdType src, vtkIntArray* visited) {
-//     queue<vtkIdType> queue;
-//
-//     queue.push(src);
-//
-//     visited->SetValue(src, 1);
-//
-//     vtkIdList* reachableNodes = vtkIdList::New();
-//
-//     while(!queue.empty())
-//     {
-//         vtkIdType u = queue.front();
-//         queue.pop();
-//
-//         reachableNodes->InsertNextId(u);
-//
-//         // get number of neighboring vertices
-//         int length = this->adjacencyMatrix[u]->GetNumberOfIds();
-//
-//         // Get all adjacent vertices of the dequeued
-//         // vertex u. If a adjacent has not been visited,
-//         // then mark it visited and enqueue it
-//         for (vtkIdType i = 0; i < length; i++) {
-//
-//             vtkIdType temp = this->adjacencyMatrix[u]->GetId(i);
-//
-//             if (!(visited->GetValue(temp))) {
-//                 visited->SetValue(temp, 1);
-//                 queue.push(temp);
-//             }
-//
-//         }
-//     }
-//     return reachableNodes;
-//
-// }
-//
-// vtkIdList* surfaceCut::findReachableNodes(vtkPolyData* in) {
-//
-//     vtkSmartPointer<vtkIntArray> visited = vtkIntArray::New();
-//     visited->SetNumberOfValues(this->NumberOfVertices + 1);
-//
-//     // Initialize all vertices with 0 in visited array (i.e. not visited yet)
-//     for (int i = 0; i <= this->NumberOfVertices; i++) {
-//         visited->SetValue(i, 0);
-//     }
-//
-//     // vtkIdList to store reachable nodes
-//     vtkIdList* reachedNodes;
-//
-//     int compNum = 0;
-//
-//     vtkIdType u = this->outsidePoint;
-//
-//     if(!(visited->GetValue(u))) {
-//         compNum++;
-//         reachedNodes = this->BFS(compNum, u, visited);
-//         cout << "called BFS" << endl;
-//     }
-//     for (vtkIdType i = 0; i < reachedNodes->GetNumberOfIds(); i++) {
-//         cout << "reachable node: " << reachedNodes->GetId(i) << endl;
-//     }
-//
-//     return reachedNodes;
-//
-// }
-//
-// void surfaceCut::cut(vtkPolyData* in, vtkPolyData* out, vtkIdList* list) {
-//     cout << "starting to cut" << endl;
-//     // for (vtkIdType i = 0; i < list->GetNumberOfIds(); i++) {
-//     //     in->BuildLinks();
-//     //     cout << "deleted point: " << list->GetId(i) << endl;
-//     //     in->DeletePoint(list->GetId(i));
-//     //
-//     // }
-//
-//     for (vtkIdType i = 0; i < list->GetNumberOfIds(); i++) {
-//         in->BuildLinks();
-//         // initialize list of cells
-//         vtkSmartPointer<vtkIdList> cellIdList = vtkSmartPointer<vtkIdList>::New();
-//         // get all cells that contain the current vertex
-//         in->GetPointCells(list->GetId(i), cellIdList);
-//         for (vtkIdType j = 0; j < cellIdList->GetNumberOfIds(); j++) {
-//             // delete each of these cells
-//             in->DeleteCell(cellIdList->GetId(j));
-//         }
-//         in->RemoveDeletedCells();
-//     }
-//     vtkCleanPolyData *Clean = vtkCleanPolyData::New();
-//     Clean->SetInputData(in);
-//     Clean->Update();
-//     out->ShallowCopy(Clean->GetOutput());
-// }
-//
-// /* splits poly data into two components by deleting all cells along the
-//     user-specified path */
-// void surfaceCut::splitComponents(vtkPolyData* in) {
-//
-//     // can delete this first for loop???
-//     for (vtkIdType i = 0; i < this->UserPoints->GetNumberOfIds(); i++) {
-//         vtkSmartPointer<vtkIdList> cellIdList = vtkSmartPointer<vtkIdList>::New();
-//         // get all cells that contain the current vertex
-//         in->GetPointCells(UserPoints->GetId(i), cellIdList);
-//     }
-//     // iterate through
-//     for (vtkIdType i = 0; i < this->UserPoints->GetNumberOfIds(); i++) {
-//         in->BuildLinks();
-//         // initialize list of cells
-//         vtkSmartPointer<vtkIdList> cellIdList = vtkSmartPointer<vtkIdList>::New();
-//         // get all cells that contain the current vertex
-//         in->GetPointCells(UserPoints->GetId(i), cellIdList);
-//         for (vtkIdType j = 0; j < cellIdList->GetNumberOfIds(); j++) {
-//             in->DeleteCell(cellIdList->GetId(j));
-//         }
-//         in->RemoveDeletedCells();
-//     }
-//
-// }
 
 void surfaceCut::PrintSelf(ostream& os, vtkIndent indent) {
     this->Superclass::PrintSelf(os, indent);
