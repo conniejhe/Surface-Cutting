@@ -141,9 +141,6 @@ void surfaceCut::ColorBoundary() {
 
     for (int i = 0; i < this->UserPoints->GetNumberOfIds(); i++) {
         vtkIdType curr_id = this->UserPoints->GetId(i);
-        if ((curr_id == 2005) || (curr_id == 2153) || (curr_id == 2169)) {
-            cout << "vertex " << curr_id << " is being marked as 1" << endl;
-        }
         this->colorArray->SetValue(curr_id, 1);
 
     }
@@ -156,9 +153,6 @@ void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
     if (this->colorArray->GetValue(i) != bound_color &&
         this->colorArray->GetValue(i) != fill_color)
     {
-        if ((i == 0) || (i == 1) || (i == 2) || (i == 3)) {
-            cout << "error: vertex " << i << " is being marked" << endl;
-        }
         this->colorArray->SetValue(i, fill_color);
         int length = this->adjacencyMatrix[i]->GetNumberOfIds();
 

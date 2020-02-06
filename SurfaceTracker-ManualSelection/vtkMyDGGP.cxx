@@ -92,7 +92,8 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
-      //cout << origIds->GetValue(i) << endl;
+      cout << "USer selected: " << endl;
+      cout << origIds->GetValue(i) << endl;
   }
   cout << "Extracted Point IDs from selection object." << endl;
   //appender to collect all geodesic paths

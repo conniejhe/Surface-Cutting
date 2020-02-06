@@ -25,7 +25,7 @@
       </InputProperty>
 
       <InputProperty
-         name="Selection"
+         name="Path"
          port_index="1"
          command="SetInputConnection">
         <ProxyGroupDomain name="groups">
