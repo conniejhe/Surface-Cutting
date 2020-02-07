@@ -149,7 +149,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   output->ShallowCopy(cleaner->GetOutput());
 
   vtkSmartPointer<vtkPointData> outputPD = output->GetPointData();
-  //vtkNew<vtkIdTypeArray> originalPointIds;
+
   vtkSmartPointer<vtkIdTypeArray> originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();
 
   originalPointIds->SetNumberOfComponents(1);

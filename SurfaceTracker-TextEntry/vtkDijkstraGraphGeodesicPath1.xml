@@ -1,6 +1,6 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-   <SourceProxy name="DijkstraGraphGeodesicPath" class="vtkDijkstraGraphGeodesicPath1" label="My DGGP">
+   <SourceProxy name="Surface Tracker Text" class="vtkDijkstraGraphGeodesicPath1" label="Surface Tracker Text">
      <Documentation
         long_help="Shortest path calculation between two points."
         short_help="shortest path.">

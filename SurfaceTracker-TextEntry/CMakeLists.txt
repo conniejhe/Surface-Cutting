@@ -14,13 +14,13 @@ find_package(LAPACK)
 # manager classes to build
 # this plugin can be loaded on the server side
 
-ADD_PARAVIEW_PLUGIN(DijkstraGraphGeodesicPathFilter "1.0"
+ADD_PARAVIEW_PLUGIN(SurfaceTrackerText "1.0"
   SERVER_MANAGER_XML vtkDijkstraGraphGeodesicPath1.xml
   SERVER_MANAGER_SOURCES vtkDijkstraGraphGeodesicPath1.cxx
   ../Curvature/vtkCurvatures1.cxx
   ../Curvature/vtkCurvatures1.h)
 
-TARGET_LINK_LIBRARIES(DijkstraGraphGeodesicPathFilter
+TARGET_LINK_LIBRARIES(SurfaceTrackerText
   ${DGGP_LIBRARY}
   /usr/lib/liblapack.so
   /usr/lib/libblas.so

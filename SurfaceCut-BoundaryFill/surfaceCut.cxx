@@ -115,6 +115,13 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     cout << "Extracted Point IDs from loop." << endl;
 
+    // int numIds = this->UserPoints->GetNumberOfIds();
+    // if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
+    //     cerr << "ERROR: loop is not closed" << endl;
+    //     // how to make this error message pop up in paraview?
+    //     exit();
+    // }
+
     ColorBoundary();
 
     BuildAdjacency(output);

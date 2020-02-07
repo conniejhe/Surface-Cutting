@@ -1,7 +1,7 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <!-- ================================================================== -->
-    <SourceProxy name="MyDijkstra" class="vtkMyDGGP" label="My Djikstra Graph Geodesic Path">
+    <SourceProxy name="Surface Tracker Manual" class="vtkMyDGGP" label="Surface Tracker Manual">
       <Documentation
          long_help="uses Dijkstra Path Geodesic Path to return shortest path between
          user selected points"

@@ -14,13 +14,13 @@ find_package(LAPACK)
 # manager classes to build
 # this plugin can be loaded on the server side
 
-ADD_PARAVIEW_PLUGIN(MyDijkstra "1.0"
+ADD_PARAVIEW_PLUGIN(SurfaceTrackerManual "1.0"
   SERVER_MANAGER_XML vtkMyDGGP.xml
   SERVER_MANAGER_SOURCES vtkMyDGGP.cxx
   ../SurfaceTracker-TextEntry/vtkDijkstraGraphGeodesicPath1.cxx
   ../Curvature/vtkCurvatures1.cxx)
 
-  TARGET_LINK_LIBRARIES(MyDijkstra
+  TARGET_LINK_LIBRARIES(SurfaceTrackerManual
     ${DGGP1_LIBRARY}
     /usr/lib/liblapack.so
     /usr/lib/libblas.so
