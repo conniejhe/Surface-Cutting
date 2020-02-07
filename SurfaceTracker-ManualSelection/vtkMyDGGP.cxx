@@ -90,9 +90,12 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkIdTypeArray> origIds = vtkIdTypeArray::SafeDownCast(
     sel->GetPointData()->GetArray("vtkOriginalPointIds"));
 
+    if (this->UserPoints->GetNumberOfIds() > 0) {
+        this->UserPoints->Reset();
+        this->UserPoints->Squeeze();
+    }
   for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
-      cout << "USer selected: " << endl;
       cout << origIds->GetValue(i) << endl;
   }
   cout << "Extracted Point IDs from selection object." << endl;
@@ -100,11 +103,15 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkAppendPolyData> appender =
     vtkSmartPointer<vtkAppendPolyData>::New();
   int length = this->UserPoints->GetNumberOfIds();
+
+  if (this->IdList->GetNumberOfIds() > 0) {
+      this->IdList->Reset();
+      this->IdList->Squeeze();
+  }
   for (vtkIdType i = 0; i < length; i++) {
     //instantiate this outside of loop?
     vtkSmartPointer<vtkDijkstraGraphGeodesicPath1> dijkstra =
       vtkSmartPointer<vtkDijkstraGraphGeodesicPath1>::New();
-      //vtkDijkstraGraphGeodesicPath1* dijkstra = new vtkDijkstraGraphGeodesicPath1();
 
     if (this->LineType == VTK_LINE_GEODESIC ) {
       dijkstra->SetLineTypeToGeodesic();
@@ -144,7 +151,8 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   //vtkPointData* outputPD = output->GetPointData();
   vtkSmartPointer<vtkPointData> outputPD = output->GetPointData();
   //vtkNew<vtkIdTypeArray> originalPointIds;
-  vtkSmartPointer<vtkIdTypeArray> originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();;
+  vtkSmartPointer<vtkIdTypeArray> originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();
+
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
 

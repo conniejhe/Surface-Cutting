@@ -187,8 +187,6 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
 
   // curv->GetOutput()->GetPointData()->GetArray("Gauss_Curvature");
 
-  cout << "here" << endl;
-
   vtkDoubleArray* temp = vtkDoubleArray::SafeDownCast(curv->GetOutput()->GetPointData()->GetArray(char_array));
 
   for (int i = 0; i < this->NumberOfVertices; i++) {
