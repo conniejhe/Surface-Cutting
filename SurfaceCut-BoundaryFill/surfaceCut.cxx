@@ -95,7 +95,6 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     this->NumberOfVertices = input->GetNumberOfPoints();
 
-    /* Do we need to do this? */
     for (int i = 0; i < this->NumberOfVertices; i++) {
         this->adjacencyMatrix.push_back(vtkSmartPointer<vtkIdList>::New());
     }
@@ -241,7 +240,6 @@ void surfaceCut::BuildAdjacency(vtkDataSet *inData)
     }
   }
 
-  //this->AdjacencyBuildTime.Modified();???
 }
 
 void surfaceCut::PrintSelf(ostream& os, vtkIndent indent) {
