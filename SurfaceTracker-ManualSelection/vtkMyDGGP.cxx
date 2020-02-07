@@ -141,9 +141,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
 
   output->ShallowCopy(cleaner->GetOutput());
 
-  //vtkPointData* outputPD = output->GetPointData();
   vtkSmartPointer<vtkPointData> outputPD = output->GetPointData();
-  //vtkNew<vtkIdTypeArray> originalPointIds;
   vtkSmartPointer<vtkIdTypeArray> originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();;
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
@@ -152,9 +150,6 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     originalPointIds->InsertNextValue(this->IdList->GetId(i));
   }
   outputPD->AddArray(originalPointIds);
-
-  // why does deleting this prevent seg fault??
-  // origIds->Delete();
 
   return 1;
 }
