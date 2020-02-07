@@ -9,6 +9,7 @@
     + [SurfaceTracker-ManualSelection](#surfacetracker-manualselection)
     + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
     + [SurfaceCut-ConnectedComponents](#surfacecut-connectedcomponents)
+    + [SurfaceCut-BoundaryFill](#surfacecut-boundaryfill)
   * [Compiling Custom Plugins](#compiling-custom-plugins)
 
 ## Introduction ##
