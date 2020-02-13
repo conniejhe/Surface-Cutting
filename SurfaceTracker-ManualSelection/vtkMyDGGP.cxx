@@ -90,10 +90,22 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkIdTypeArray> origIds = vtkIdTypeArray::SafeDownCast(
     sel->GetPointData()->GetArray("vtkOriginalPointIds"));
 
+    cout << "got selection " << endl;
+
+    // put this in so that it resets every time you change line type
     if (this->UserPoints->GetNumberOfIds() > 0) {
         this->UserPoints->Reset();
         this->UserPoints->Squeeze();
     }
+
+    cout << "reset User Points" << endl;
+
+    if (origIds == NULL) {
+        cerr << "ERROR: Not enough points selected." << endl;
+        vtkErrorMacro(<< "ERROR: Not enough points selected."); 
+        return 0;
+    }
+
   for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
       cout << origIds->GetValue(i) << endl;

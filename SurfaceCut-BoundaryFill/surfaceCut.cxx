@@ -102,12 +102,24 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdTypeArray* selIds = vtkIdTypeArray::SafeDownCast(
         sel->GetPointData()->GetArray("vtkOriginalPointIds"));
 
+    if (selIds == NULL) {
+        cerr << "ERROR: Need to select at least one inside point." << endl;
+        vtkErrorMacro(<< "ERROR: Need to select at least one inside point.");
+        return 0;
+    }
+
     this->insidePoint = selIds->GetValue(0);
 
     vtkIdTypeArray* origIds = vtkIdTypeArray::SafeDownCast(
         line->GetPointData()->GetArray("vtkOriginalPointIds"));
 
     cout << "Got Point Ids in loop." << endl;
+
+    if (origIds == NULL) {
+        cerr << "ERROR: Loop does not contain any points." << endl;
+        vtkErrorMacro(<< "ERROR: Loop does not contain any points.");
+        return 0;
+    }
 
     for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
