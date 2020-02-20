@@ -1,5 +1,6 @@
 #### import the simple module from the paraview
 from paraview.simple import *
+import sys
 #### disable automatic camera reset on 'Show'
 paraview.simple._DisableFirstRenderCameraReset()
 
@@ -23,9 +24,14 @@ id1 = active_selection.IDs[1]
 id2 = active_selection.IDs[3]
 # create a new 'Extract Selection'
 
-# selection = SelectPoints((id == 0) | (id == 1) | (id == 2))
-query1 = "(id == " + str(id1) + ") | " + "(id == " + str(id2) + ") "
-selection = SelectPoints(query = query1)
+query = ""
+
+for i in range(1, length, 2):
+    query = query + "(id == " + str(active_selection.IDs[i]) + ")"
+    if i != (length - 1):
+        query = query + " |"
+
+selection = SelectPoints(query)
 extractSelection1 = ExtractSelection(Input=proxy,
     Selection=selection)
 
@@ -64,12 +70,6 @@ surfaceTrackerManual1Display.Representation = 'Surface'
 
 # hide data in view
 Hide(extractSelection1, renderView1)
-
-# hide data in view
-Hide(extractSelection2, renderView1)
-
-# hide data in view
-Hide(extractSelection3, renderView1)
 
 SetActiveSource(proxy)
 
