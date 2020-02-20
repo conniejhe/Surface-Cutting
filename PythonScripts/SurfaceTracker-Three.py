@@ -7,7 +7,7 @@ paraview.simple._DisableFirstRenderCameraReset()
 proxy = GetActiveSource()
 
 if proxy is None:
-   print "Proxy is None"   
+   print "Proxy is None"
 
 active_selection = proxy.GetSelectionInput(proxy.Port)
 
@@ -81,6 +81,8 @@ sphere1Display.Representation = 'Surface'
 surfaceTrackerManual1 = SurfaceTrackerManual(Input=proxy,
     Selection=extractSelection1)
 
+surfaceTrackerManual1.LineType = "Sulcus"
+
 # show data in view
 surfaceTrackerManual1Display = Show(surfaceTrackerManual1, renderView1)
 
@@ -90,6 +92,8 @@ surfaceTrackerManual1Display.Representation = 'Surface'
 # create a new 'Surface Tracker Manual'
 surfaceTrackerManual2 = SurfaceTrackerManual(Input=proxy,
     Selection=extractSelection2)
+
+surfaceTrackerManual2.LineType = "Gyrus"
 
 # show data in view
 surfaceTrackerManual2Display = Show(surfaceTrackerManual2, renderView1)
