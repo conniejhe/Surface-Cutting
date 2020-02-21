@@ -203,8 +203,27 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
         // keeps cell only if all three vertices are colored
         if (!(this->colorArray->GetValue(a)) || !(this->colorArray->GetValue(b))
             || !(this->colorArray->GetValue(c))) {
-            // cout << "deleting cell: " << f << endl;
-            in->DeleteCell(f);
+
+            vtkIdType not_colored = 0;
+            if (!(this->colorArray->GetValue(a))) {
+                not_colored = a;
+            } else if (!(this->colorArray->GetValue(b))) {
+                not_colored = b;
+            } else {
+                not_colored = c;
+            }
+
+            int num_nei = this->adjacencyMatrix[not_colored]->GetNumberOfIds();
+            int colored_nei = 0;
+            for (vtkIdType n = 0; n < num_nei; n++) {
+                if(this->colorArray->GetValue(n)) {
+                    colored_nei++;
+                }
+            }
+
+            if (colored_nei < num_nei) {
+                in->DeleteCell(f);
+            }
         }
     }
 

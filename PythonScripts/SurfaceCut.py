@@ -7,7 +7,7 @@ paraview.simple._DisableFirstRenderCameraReset()
 proxy = GetActiveSource()
 
 if proxy is None:
-   print "Proxy is None"   
+   print "Proxy is None"
 
 active_selection = proxy.GetSelectionInput(proxy.Port)
 
@@ -27,32 +27,25 @@ extractSelection4 = ExtractSelection(Input=proxy,
 # get active view
 renderView1 = GetActiveViewOrCreate('RenderView')
 
-# find source
 s1 = FindSource('SurfaceTrackerManual1')
 
-# find source
-s2 = FindSource('SurfaceTrackerManual2')
+segments = []
+count = 2
 
-# find source
-s3 = FindSource('SurfaceTrackerManual3')
+while s1 is not None:
+    segments.append(s1)
+    nextSeg = 'SurfaceTrackerManual' + str(count)
+    s1 = FindSource(nextSeg)
+    count += 1
 
 # create a new 'Append Geometry'
-appendGeometry1 = AppendGeometry(Input=[s1, s2, s3])
+appendGeometry1 = AppendGeometry(Input=segments)
 
 # show data in view
 appendGeometry1Display = Show(appendGeometry1, renderView1)
 
 # trace defaults for the display properties.
 appendGeometry1Display.Representation = 'Surface'
-
-# hide data in view
-Hide(s1, renderView1)
-
-# hide data in view
-Hide(s3, renderView1)
-
-# hide data in view
-Hide(s2, renderView1)
 
 # update the view to ensure updated data information
 renderView1.Update()

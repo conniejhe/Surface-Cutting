@@ -102,7 +102,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (origIds == NULL) {
         cerr << "ERROR: Not enough points selected." << endl;
-        vtkErrorMacro(<< "ERROR: Not enough points selected."); 
+        vtkErrorMacro(<< "ERROR: Not enough points selected.");
         return 0;
     }
 
@@ -120,7 +120,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
       this->IdList->Reset();
       this->IdList->Squeeze();
   }
-  for (vtkIdType i = 0; i < length; i++) {
+  for (vtkIdType i = 0; i < (length - 1); i++) {
     //instantiate this outside of loop?
     vtkSmartPointer<vtkDijkstraGraphGeodesicPath1> dijkstra =
       vtkSmartPointer<vtkDijkstraGraphGeodesicPath1>::New();
@@ -137,7 +137,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     }
     dijkstra->SetInputData(input);
     dijkstra->SetStartVertex(this->UserPoints->GetId(i));
-    dijkstra->SetEndVertex(this->UserPoints->GetId((i + 1) % length));
+    dijkstra->SetEndVertex(this->UserPoints->GetId(i + 1));
     dijkstra->Update();
     vtkSmartPointer<vtkIdList> tempIdList = dijkstra->GetIdList();
 
@@ -150,7 +150,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     pathOutput->ShallowCopy(dijkstra->GetOutput());
     appender->AddInputData(pathOutput);
   }
-  cout << "Drew Path." << endl;
+  cout << "Drew Path" << endl;
 
   vtkSmartPointer<vtkCleanPolyData> cleaner =
     vtkSmartPointer<vtkCleanPolyData>::New();
