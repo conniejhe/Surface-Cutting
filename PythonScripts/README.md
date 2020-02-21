@@ -1,4 +1,4 @@
-The general workflow for surface tracking and cutting is described in 'Example.md' under the Examples folder. However, there are several scripts that can be used to speed up the process and reduce the number of mouse-clicks required.
+The general workflow for surface tracking and cutting is described in [Example.md](../Examples/Example.md) under the Examples folder. However, there are several scripts that can be used to speed up the process and reduce the number of mouse-clicks required.
 
 ## Surface Tracking
 To use any of these scripts, you should set the active source as the brain surface (selected and highlighted in the pipeline). Select three points using the 'Interactive Select Points On' tool. Make sure the correct points are selected (you know if they're selected if they are highlighted in magenta). Without extracting the points, run this script.
@@ -6,7 +6,7 @@ To use any of these scripts, you should set the active source as the brain surfa
 More specific descriptions for each script and when they should be used are below:
 
 ### SurfaceTracker-One.py
-This script will call the 'Surface Tracker Manual' filter on all of these points, generating a single line connecting them. The default line type will be geodesic, but you can change it in the properties panel. You should use this script if you just want to generate lines connecting two points at a time as you proceed with surface tracking. The incremental nature of this approach allows you to change the points more easily as you go if you don't like the line segment that was drawn.
+This script will call the 'Surface Tracker Manual' filter on all of these points, generating a single line connecting them. The default line type will be geodesic, but you can change it in the properties panel. You should use this script if you just want to generate lines connecting two points at a time as you proceed with surface tracking. The incremental nature of this approach allows you to change the points more easily as you go if you don't like the line segment that was drawn. Note that there is a bug where after running this script, if you try to select new points on the surface it will generate a warning and also delete the existing selection. Therefore, you will need to reselect the desired points again. 
 
 ### SurfaceTracker-Three.py
 This script will call the 'Surface Tracker Manual' filter three times, to form separate segments between the 1st and 2nd point, 2nd and 3rd point, and 3rd back to the 1st point. The default line types for these are sulcus, gyrus, and geodesic, respectively, but they are modifiable using the properties panel. This is useful if you want to generate three different segments at once instead of one by one.
