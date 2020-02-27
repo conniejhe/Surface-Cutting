@@ -146,7 +146,10 @@ All of the above plugins can be built using these commands:
  3. need to set ParaView_DIR: /export/bofur/akolasny/paraview/paraview_build
  4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
-These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
+These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder. 
+
+The plugin will be compiled as a .so file that can be loaded into Paraview. From the Paraview menu, select Tools -> Manage Plugins... -> Load New...  
+Navigate into build folder for plugin and select the .so file, and it should be good to go.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 Feb 7)
+Last Edited by: Connie He (2020 Feb 27)
