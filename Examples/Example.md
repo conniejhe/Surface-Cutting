@@ -1,5 +1,7 @@
 Below is a step-by-step procedure demonstrating how to use the surface tracking and cutting features to extract a custom region of a brain surface. **Make sure to compile and load the 'SurfaceTracker-ManualSelection' and 'SurfaceCut-BoundaryFill' plugins beforehand, using these [instructions](https://github.com/conniejhe/Surface-Cutting/blob/master/README.md#compiling-and-loading-custom-plugins).**
 
+This workflow can be significantly automated using the Python scripts located in [Scripts](../PythonScripts), which effectively chain several consecutive actions together in one click. However, it is beneficial to know the step-by-step procedure as well, in case things go wrong.
+
 This example uses the byu file named 'example_surface.byu'.
 
 1. Load the 'example_surface.byu' file using the BYU Reader.
