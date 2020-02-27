@@ -18,7 +18,9 @@ This repository contains the source code for the surface cutting plugin project 
 Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: https://www.paraview.org/Wiki/ParaView:Build_And_Install
 
 All development thus far has been done on Bofur (CIS machine), using the version of Paraview located in this path:   
+```
 /export/bofur/akolasny/paraview/paraview_build/bin/paraview
+```
 
 The surface cutting project consists of two different parts (and hence two main plugins):
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
