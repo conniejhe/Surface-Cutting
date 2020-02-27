@@ -21,7 +21,7 @@ This example uses the byu file named 'example_surface.byu'.
 7. Select the 'Surface Tracker Manual' filter from the Filters dropdown menu and select 'example_surface.byu' as the Input and 'ExtractSelection3' as the Selection. Switch the line type to geodesic.
   
 ![Geodesic Line](./ExamplePictures/SurfaceTracker3.png)
-8. Now that you have the individual three segments that comprise the loop, combine them using the 'Append Geometry' filter in the Filters dropdown menu. Make sure that the three 'SurfaceTrackerManual' objects are selected simultaneously before performing this step.
+8. Make sure that the three 'SurfaceTrackerManual' objects are selected simultaneously. Now that you have the individual three segments that comprise the loop, combine them using the 'Append Geometry' filter in the Filters dropdown menu.
   
 ![Combined Lines](./ExamplePictures/AppendGeometry.png)
 9. Select a point inside the desired region which will act as the starting point for the surface cut algorithm. Extract it using the 'Extract Selection' tool. Make sure all the other points are deselected before this.
