@@ -1,4 +1,4 @@
-Below is a step-by-step procedure demonstrating how to use the surface tracking and cutting features to extract a custom region of a brain surface. Compile and load the 'SurfaceTracker-ManualSelection' and 'SurfaceCut-BoundaryFill' plugins beforehand.
+Below is a step-by-step procedure demonstrating how to use the surface tracking and cutting features to extract a custom region of a brain surface. **Make sure to compile and load the 'SurfaceTracker-ManualSelection' and 'SurfaceCut-BoundaryFill' plugins beforehand, using these [instructions](https://github.com/conniejhe/Surface-Cutting/blob/master/README.md#compiling-and-loading-custom-plugins).**
 
 This example uses the byu file named 'example_surface.byu'.
 
@@ -9,7 +9,7 @@ This example uses the byu file named 'example_surface.byu'.
 3. Select the 'Surface Tracker Manual' filter from the Filters dropdown menu and select 'example_surface.byu' as the Input and 'ExtractSelection1' as the Selection. Switch the line type to sulcus.
   
 ![Sulcus Line](./ExamplePictures/SurfaceTracker1.png)
-4. Using the 'Interactive Select Points Tool', deselect the first point (using Shift key) and select a point at the end of the gyrus. Use the 'Extract Selection' tool to save these two points.
+4. Using the 'Interactive Select Points Tool', deselect the first point (hold down Shift key and left click) and select a point at the end of the gyrus. Use the 'Extract Selection' tool to save these two points.
   
 ![Extracted Selection](./ExamplePictures/ExtractSelection2.png)
 5. Select the 'Surface Tracker Manual' filter from the Filters dropdown menu and select 'example_surface.byu' as the Input and 'ExtractSelection2' as the Selection. Switch the line type to gyrus.
