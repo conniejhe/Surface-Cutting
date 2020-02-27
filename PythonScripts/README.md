@@ -1,7 +1,7 @@
 The general workflow for surface tracking and cutting is described in [Example.md](../Examples/Example.md) under the Examples folder. However, there are several scripts that can be used to speed up the process and reduce the number of mouse-clicks required.
 
 ## Surface Tracking
-To use any of these scripts, you should set the active source as the brain surface (selected and highlighted in the pipeline). Select three points using the 'Interactive Select Points On' tool. Make sure the correct points are selected (you know if they're selected if they are highlighted in magenta). Without extracting the points, run this script.
+**To use any of these scripts, you should set the active source as the brain surface (selected and highlighted in the pipeline).** Select an arbitrary number of points using the 'Interactive Select Points On' tool. Double check to make sure the correct points are selected (you know if they're selected if they are highlighted in magenta). Without extracting the points, run this script.
 
 More specific descriptions for each script and when they should be used are below:
 
@@ -16,4 +16,4 @@ This script will call the 'Surface Tracker Manual' filter multiple times, to for
 
 ## Surface Cutting
 ### SurfaceCut.py
-To use this script, make sure you have multiple 'SurfaceTrackerManual' objects. This script relies on the proper naming of these segments, so it is very important that the naming is correct (which it should be by default). The active source should be the brain surface. Surface Cut requires a selected point on the inside of the desired region to indicate which portion the user would like to keep. Therefore, make sure you have an inside point selected as the only point selected - do not extract it, just leave it selected. Now, you can run the script which will first append the 'SurfaceTrackerManual' objects into one object and then run the 'Surface Cut' filter using the appended line segments and the selected inside point.
+To use this script, make sure you have multiple 'SurfaceTrackerManual' objects. This script relies on the proper naming of these segments, so it is very important that the naming is correct (which it should be by default). The active source should be the brain surface. Surface Cut requires a selected point on the inside of the desired region to indicate which portion the user would like to keep. Therefore, to use this script you must have an inside point selected as the only point selected - do not extract it, just leave it selected. Now, you can run the script which will first append the 'SurfaceTrackerManual' objects into one object and then run the 'Surface Cut' filter using the appended line segments and the selected inside point.
