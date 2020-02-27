@@ -17,7 +17,7 @@ This repository contains the source code for the surface cutting plugin project 
 
 Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: https://www.paraview.org/Wiki/ParaView:Build_And_Install
 
-All development thus far has been done on Bofur (CIS machine).  
+All development thus far has been done on Bofur (CIS machine), using the version of Paraview located in this path: /export/bofur/akolasny/paraview/paraview_build/bin/paraview
 
 The surface cutting project consists of two different parts (and hence two main plugins):
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
@@ -133,14 +133,14 @@ This plugin is similar in the functionality to the two previous SurfaceCut plugi
    - current workaround is just to run the surface cutting filter twice and append them with another filter afterwards.
 
 ## Compiling Custom Plugins ##
-
+Before using one of these plugins, you must compile them into a build directory.
 All of the above plugins can be built using these commands:
 
- 1. Make a new build directory and navigate into it (should be empty)
+ 1. Make a new build directory in the plugin folder and navigate into it (should be empty)
     1. example: cis/home/che/Documents/CPPFilterPlugin/build
  2. Type following series of commands: ccmake .. -> c -> g -> make
     1. will show EMPTY CACHE at first
- 3. need to set ParaView_DIR: /export/bofur/che/paraview/paraview_build
+ 3. need to set ParaView_DIR: /export/bofur/akolasny/paraview/paraview_build
  4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder.
