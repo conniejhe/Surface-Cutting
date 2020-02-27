@@ -10,7 +10,7 @@
     + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
     + [SurfaceCut-ConnectedComponents](#surfacecut-connectedcomponents)
     + [SurfaceCut-BoundaryFill](#surfacecut-boundaryfill)
-  * [Compiling Custom Plugins](#compiling-custom-plugins)
+  * [Compiling and Loading Custom Plugins](#compiling-and-loading-custom-plugins)
 
 ## Introduction ##
 This repository contains the source code for the surface cutting plugin project for Paraview. The following plugins have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source
@@ -135,7 +135,7 @@ This plugin is similar in the functionality to the two previous SurfaceCut plugi
  - The only problem is I've found is a few edge cases where it fails to capture a few cells in the desired region.
    - current workaround is just to run the surface cutting filter twice and append them with another filter afterwards.
 
-## Compiling Custom Plugins ##
+## Compiling and Loading Custom Plugins ##
 Before using one of these plugins, you must compile them into a build directory.
 All of the above plugins can be built using these commands:
 
