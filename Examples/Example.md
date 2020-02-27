@@ -2,6 +2,13 @@ Below is a step-by-step procedure demonstrating how to use the surface tracking 
 
 This workflow can be significantly automated using the Python scripts located in [Scripts](../PythonScripts), which effectively chain several consecutive actions together in one click. However, it is beneficial to know the step-by-step procedure as well, in case things go wrong.
 
+The following photo shows a few useful shortcuts and clarifications:
+1. **Red**: Selecting this icon allows changes to be applied to parameters automatically, so you don't need to keep clicking 'Apply' in the Properties Panel following every step.
+2. **Blue**: This is a shortcut for the 'Extract Selection' filter, which can otherwise be found under Filters -> Alphabetical -> Extract Selection.
+3. **Green**: This is the 'Interactive Select Points Tool' which is used to select vertices on the mesh.
+
+![Paraview Toolbar](./ExamplePictures/Annotated_PV_toolbar.png)
+
 This example uses the byu file named 'example_surface.byu'.
 
 1. Load the 'example_surface.byu' file using the BYU Reader.
