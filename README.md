@@ -21,10 +21,14 @@ All development thus far has been done on Bofur (CIS machine), using the version
 ```
 /export/bofur/akolasny/paraview/paraview_build/bin/paraview
 ```
+CIS users can access this version of Paraview (with the plugins autoloaded) using this command:
+```
+paraview-connie
+```
 
 The surface cutting project consists of two different parts (and hence two main plugins):
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
-  2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object. Currently, there are two different implementations of this feature which are described in greater detail below.
+  2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object.
   
 All questions should be directed to Connie He (<conbonhe98@gmail.com>).
 
@@ -132,8 +136,6 @@ This plugin is similar in the functionality to the two previous SurfaceCut plugi
 **Notes**:
  - This method is the most effective surface cut algorithm that I've experimented with so far.
  - It is effective in clipping the desired region most of time and completes within a second.
- - The only problem is I've found is a few edge cases where it fails to capture a few cells in the desired region.
-   - current workaround is just to run the surface cutting filter twice and append them with another filter afterwards.
 
 ## Compiling and Loading Custom Plugins ##
 Before using one of these plugins, you must compile them into a build directory.
