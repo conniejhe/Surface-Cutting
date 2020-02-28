@@ -14,15 +14,11 @@
 #include "vtkCleanPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <queue>
-#include <unordered_map>
 #include <vector>
 #include <iostream>
 
 using std::vector;
 using std::cout;
-using std::queue;
-using std::unordered_map;
 
 vtkStandardNewMacro(surfaceCut);
 
@@ -127,12 +123,15 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     cout << "Extracted Point IDs from loop." << endl;
 
-    // int numIds = this->UserPoints->GetNumberOfIds();
-    // if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
-    //     cerr << "ERROR: loop is not closed" << endl;
-    //     // how to make this error message pop up in paraview?
-    //     exit();
-    // }
+    int numIds = this->UserPoints->GetNumberOfIds();
+
+    cout << "about to detect if loop is closed" << endl;
+    cout << this->UserPoints->GetId(0) << " " << this->UserPoints->GetId(numIds - 1) << endl;
+    if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
+        cout << "loop not closed" << endl;
+        vtkDebugMacro("ERROR: loop is not closed");
+        return 0;
+    }
 
     ColorBoundary();
 
