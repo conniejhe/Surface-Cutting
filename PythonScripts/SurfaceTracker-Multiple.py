@@ -16,7 +16,6 @@ if active_selection is None:
 
 #initialize array for selected points
 length = len(active_selection.IDs)
-print(length)
 
 for i in range(1, length, 2):
     id1 = active_selection.IDs[i]
