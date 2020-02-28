@@ -1,4 +1,4 @@
-The general workflow for surface tracking and cutting is described in [Example.md](../Examples/Example.md) under the Examples folder. However, there are several scripts that can be used to speed up the process and reduce the number of mouse-clicks required.
+The general workflow for surface tracking and cutting is described in [Example.md](../Examples/Example.md) under the Examples folder. However, there are several scripts that can be used to speed up the process and reduce the number of mouse-clicks required. **To use these scripts, load them into Paraview under Macro -> Add new macro. They should pop up in the tool bar.**
 
 ## Surface Tracking
 **To use any of these scripts, you should set the active source as the brain surface (selected and highlighted in the pipeline).** Select an arbitrary number of points using the 'Interactive Select Points On' tool. Double check to make sure the correct points are selected (you know if they're selected if they are highlighted in magenta). Without extracting the points, run this script.
