@@ -19,11 +19,11 @@ Developing custom plugins for Paraview requires a Paraview version that is compi
 
 All development thus far has been done on Bofur (CIS machine), using the version of Paraview located in this path:   
 ```
-/export/bofur/akolasny/paraview/paraview_build/bin/paraview
+>> /export/bofur/akolasny/paraview/paraview_build/bin/paraview
 ```
 CIS users can access this version of Paraview (with the plugins autoloaded) using this command:
 ```
-paraview-connie
+>> paraview-connie
 ```
 
 The surface cutting project consists of two different parts (and hence two main plugins):
@@ -154,4 +154,4 @@ The plugin will be compiled as a .so file that can be loaded into Paraview. From
 Navigate into build folder for plugin and select the .so file, and it should be good to go.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 Feb 27)
+Last Edited by: Connie He (2020 Feb 28)
