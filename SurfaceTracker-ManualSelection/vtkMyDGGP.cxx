@@ -81,8 +81,6 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  cout << "Obtained Data Objects." << endl;
-
   if (!output || !input || !sel) {
     return 0;
   }
@@ -90,15 +88,11 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkIdTypeArray> origIds = vtkIdTypeArray::SafeDownCast(
     sel->GetPointData()->GetArray("vtkOriginalPointIds"));
 
-    cout << "got selection " << endl;
-
     // put this in so that it resets every time you change line type
     if (this->UserPoints->GetNumberOfIds() > 0) {
         this->UserPoints->Reset();
         this->UserPoints->Squeeze();
     }
-
-    cout << "reset User Points" << endl;
 
     if (origIds == NULL) {
         cerr << "ERROR: Not enough points selected." << endl;
@@ -110,7 +104,6 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
       this->UserPoints->InsertNextId(origIds->GetValue(i));
       cout << origIds->GetValue(i) << endl;
   }
-  cout << "Extracted Point IDs from selection object." << endl;
   //appender to collect all geodesic paths
   vtkSmartPointer<vtkAppendPolyData> appender =
     vtkSmartPointer<vtkAppendPolyData>::New();
@@ -127,13 +120,10 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (this->LineType == VTK_LINE_GEODESIC ) {
       dijkstra->SetLineTypeToGeodesic();
-      cout << "line type: geodesic" << endl;
     } else if (this->LineType == VTK_LINE_SULCUS ) {
       dijkstra->SetLineTypeToSulcus();
-      cout << "line type: sulcus" << endl;
     } else if (this->LineType == VTK_LINE_GYRUS) {
       dijkstra->SetLineTypeToGyrus();
-      cout << "line type: gyrus" << endl;
     }
     dijkstra->SetInputData(input);
     dijkstra->SetStartVertex(this->UserPoints->GetId(i));
@@ -150,7 +140,6 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
     pathOutput->ShallowCopy(dijkstra->GetOutput());
     appender->AddInputData(pathOutput);
   }
-  cout << "Drew Path" << endl;
 
   vtkSmartPointer<vtkCleanPolyData> cleaner =
     vtkSmartPointer<vtkCleanPolyData>::New();

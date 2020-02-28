@@ -372,7 +372,7 @@ void vtkCurvatures1::GetPrincipalCurvature(vtkPolyData *mesh, int ndepth, int dx
             // solve system of linear equations to obtain shape operator
             ssytrs_(&UPLO, &N, &NRHS, (float*)U, &LDA, IPIV, BU,
               &LDB , &INFO);
-              
+
             // matrix C is the shape operator for this vertex
             C[0][0] = BU[0];
             C[0][1] = BU[1];
@@ -515,7 +515,6 @@ double vtkCurvatures1::checkCurv(double curv) {
 void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
     this->GetPrincipalCurvature(mesh, this->ndepth, this->dx, this->dy, this->dz);
 
-    cout << "in mean" << endl;
     const vtkNew<vtkDoubleArray> gaussCurvature;
     gaussCurvature->SetName("Mean_Curvature");
     gaussCurvature->SetNumberOfComponents(1);
@@ -523,21 +522,15 @@ void vtkCurvatures1::GetMeanCurvature(vtkPolyData *mesh) {
     // Get the array so we can write to it directly
     double *gaussCurvatureData = gaussCurvature->GetPointer(0);
 
-    cout << "approaching for loop in mean" << endl;
-
     for (int i = 0; i < this->prinCurvature.size(); i++) {
         double temp = (this->prinCurvature[i].first + this->prinCurvature[i].second)/2;
         gaussCurvatureData[i] = -1 * checkCurv(temp);
     }
 
-    cout << "done for loop" << endl;
-
     mesh->GetPointData()->AddArray(gaussCurvature);
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
 
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
-    cout << "out mean" << endl;
-
 }
 //--------------------------------------------
 void vtkCurvatures1::GetGaussCurvature(vtkPolyData *mesh) {

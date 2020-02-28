@@ -103,7 +103,6 @@ int vtkDijkstraGraphGeodesicPath1::RequestData(
 
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    cout << "getting input" << endl;
   if (!input)
   {
     return 0;
@@ -111,32 +110,23 @@ int vtkDijkstraGraphGeodesicPath1::RequestData(
 
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    cout << "getting output" << endl;
   if (!output)
   {
     return 0;
   }
   this->NumberOfVertices = input->GetNumberOfPoints();
   this->Curvature->SetNumberOfValues(this->NumberOfVertices);
-  cout << "generating curvature" << endl;
   this->GenCurvature(input);
-  cout << "calculating min and max curvature" << endl;
   this->CalcMinMaxCurv();
 
 //what is this supposed to do lol
   if ( this->AdjacencyBuildTime.GetMTime() < input->GetMTime() )
   {
-    cout << "about to initialize..." << endl;
     this->Initialize( input );
-    cout << "initialized" << endl;
   }
   else
   {
-    //this->Reset();
-    cout << "about to initialize..." << endl;
     this->Initialize( input );
-    cout << "initialized" << endl;
-
   }
 
   if (this->NumberOfVertices == 0)
@@ -174,8 +164,6 @@ void vtkDijkstraGraphGeodesicPath1::GenCurvature(vtkPolyData *in) {
   curv->Setndepth(this->ndepth);
 
   curv->Update();
-
-  cout << "calculating curvature" << endl;
 
   vtkSmartPointer<vtkPolyData> curvOutput = vtkSmartPointer<vtkPolyData>::New();
 
@@ -219,10 +207,6 @@ void vtkDijkstraGraphGeodesicPath1::CalcMinMaxCurv() {
       this->minCurv = temp;
     }
   }
-  cout << "max curv:" << this->maxCurv << endl;
-  cout << "min curv:" << this->minCurv << endl;
-
-  cout << "calculated max and min curvature values" << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -300,7 +284,6 @@ void vtkDijkstraGraphGeodesicPath1::BuildAdjacency(vtkDataSet *inData)
 
   vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
   vtkIdType ncells = pd->GetNumberOfCells();
-  cout << "starting to build adjacency matrix..." << endl;
   for ( vtkIdType i = 0; i < ncells; i++)
   {
     // Possible types
@@ -359,18 +342,15 @@ double vtkDijkstraGraphGeodesicPath1::CalculateCostWithCurv(vtkIdType i, vtkIdTy
     case 1:
       ff = (this->minCurv - 0.5 * (curvi + curvj))/0.1;
       cost = dist * ff * ff;
-      //cout << "sulci" << endl;
       break;
     //gyri
     case 2:
       ff = (this->maxCurv - 0.5 * (curvi + curvj))/0.1;
       cost = dist * ff * ff;
-      //cout << "gyri" << endl;
       break;
     //geodesic
     case 0:
       cost = dist;
-      //cout << "geodesic" << endl;
       break;
   }
   return cost;
@@ -419,20 +399,22 @@ void vtkDijkstraGraphGeodesicPath1::TraceShortestPath(
   vtkSmartPointer<vtkDoubleArray> vertices = vtkSmartPointer<vtkDoubleArray>::New();
   vertices->SetNumberOfValues(this->IdList->GetNumberOfIds());
 
-  cout << "printing Id list" << endl;
-  for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds(); j++) {
-    vertices->SetValue(j, this->IdList->GetId(j));
-    cout << this->IdList->GetId(j) << endl;
-  }
+  // cout << "printing ID List" << endl;
+  // for (vtkIdType j = 0; j < this->IdList->GetNumberOfIds(); j++) {
+  //   vertices->SetValue(j, this->IdList->GetId(j));
+  //   cout << this->IdList->GetId(j) << endl;
+  // }
 
   vertices->SetName("Vertex Id List");
   outPoly->GetFieldData()->AddArray(vertices);
 
   vtkSmartPointer<vtkDoubleArray> curvature = GetCurvature();
-  cout << "printing curvature" << endl;
-  for (int i = 0; i < curvature->GetNumberOfTuples(); i++) {
-    cout << curvature->GetValue(i) << endl;
-  }
+
+  // cout << "printing curvature" << endl;
+  // for (int i = 0; i < curvature->GetNumberOfTuples(); i++) {
+  //   cout << curvature->GetValue(i) << endl;
+  // }
+
   curvature->SetName("Curvature");
   outPoly->GetFieldData()->AddArray(curvature);
 

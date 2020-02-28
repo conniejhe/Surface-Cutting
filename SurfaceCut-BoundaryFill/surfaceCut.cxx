@@ -78,8 +78,6 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     vtkPolyData *data_output = vtkPolyData::SafeDownCast(
         outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-    cout << "Obtained Data Objects." << endl;
-
     if (!output || !input || !line) {
     return 0;
     }
@@ -109,8 +107,6 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdTypeArray* origIds = vtkIdTypeArray::SafeDownCast(
         line->GetPointData()->GetArray("vtkOriginalPointIds"));
 
-    cout << "Got Point Ids in loop." << endl;
-
     if (origIds == NULL) {
         cerr << "ERROR: Loop does not contain any points." << endl;
         vtkErrorMacro(<< "ERROR: Loop does not contain any points.");
@@ -121,23 +117,16 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
       this->UserPoints->InsertNextId(origIds->GetValue(i));
     }
 
-    cout << "Extracted Point IDs from loop." << endl;
-
     int numIds = this->UserPoints->GetNumberOfIds();
 
-    cout << "about to detect if loop is closed" << endl;
-    cout << this->UserPoints->GetId(0) << " " << this->UserPoints->GetId(numIds - 1) << endl;
     if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
-        cout << "loop not closed" << endl;
-        vtkDebugMacro("ERROR: loop is not closed");
+        vtkErrorMacro("ERROR: loop is not closed");
         return 0;
     }
 
     ColorBoundary();
 
     BuildAdjacency(output);
-
-    cout << "built Adjacency" << endl;
 
     FillBoundary(output, this->insidePoint, 1, 2);
 
@@ -181,7 +170,6 @@ void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
 }
 
 void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
-    cout << "starting to cut" << endl;
 
     vtkIdType F = in->GetNumberOfCells();
 
@@ -190,7 +178,6 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
     vtkIdType a, b, c;
 
     for (vtkIdType f = 0; f < F; f++) {
-        // cout << "on cell: " << f << endl;
         vtkIdType npts;
         vtkIdType* pts;
 
@@ -232,8 +219,6 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
     Clean->SetInputData(in);
     Clean->Update();
     out->ShallowCopy(Clean->GetOutput());
-
-    cout << "done with cut" << endl;
 }
 
 // modeled off of buildAdjacency method in vtkDijkstraGraphGeodesicPath
@@ -242,7 +227,6 @@ void surfaceCut::BuildAdjacency(vtkDataSet *inData)
 
   vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
   vtkIdType ncells = pd->GetNumberOfCells();
-  cout << "starting to build adjacency matrix..." << endl;
   for ( vtkIdType i = 0; i < ncells; i++)
   {
 
