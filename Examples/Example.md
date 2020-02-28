@@ -6,6 +6,7 @@ The following photo shows a few useful clarifications of where tools are located
 1. **Red**: Selecting this icon allows changes to be applied to parameters automatically, so you don't need to keep clicking 'Apply' in the Properties Panel following every step.
 2. **Blue**: This is a shortcut for the 'Extract Selection' filter, which can otherwise be found under Filters -> Alphabetical -> Extract Selection.
 3. **Green**: This is the 'Interactive Select Points Tool' which is used to select vertices on the mesh.
+4. **Orange**: Use this trash can icon to deselect the current points.
 
 ![Paraview Toolbar](./ExamplePictures/Annotated_PV_toolbar.png)
 
@@ -33,7 +34,7 @@ This example uses the byu file named 'example_surface.byu'.
 8. Now, select the three 'SurfaceTrackerManual' objects are simultaneously (click object in pipeline and hold down shift to add to the selection). Now that you have the individual three segments that comprise the loop, combine them using the 'Append Geometry' filter in the Filters dropdown menu.
   
 ![Combined Lines](./ExamplePictures/AppendGeometry.png)
-9. Select a point inside the desired region which will act as the starting point for the surface cut algorithm. Extract it using the 'Extract Selection' tool. Make sure all the other points are deselected before this.
+9. Trash your existing points, then select a point inside the desired region which will act as the starting point for the surface cut algorithm. Extract it using the 'Extract Selection' tool. Make sure all the other points are deselected before this.
   
 ![Inside Point](./ExamplePictures/InsidePoint.png)
 10. Select the 'Surface Cut' filter from the Filters dropdown menu and choose 'example_surface.byu' as Input, 'AppendGeometry1' as Path, and 'ExtractSelection4' as Inside Point.
