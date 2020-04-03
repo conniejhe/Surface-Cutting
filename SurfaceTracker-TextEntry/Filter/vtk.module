@@ -1,0 +1,12 @@
+NAME
+  SurfaceTrackerText::SurfaceTrackerTextFilter
+LIBRARY_NAME
+  vtkDijkstraGraphGeodesicPath1
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  ParaView::RemotingCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersSources

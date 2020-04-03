@@ -1,27 +1,21 @@
-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8)
+project(newfilter)
 
-if (NOT ParaView_BINARY_DIR)
-  find_package(ParaView REQUIRED)
-  include(${PARAVIEW_USE_FILE})
-endif()
+include(GNUInstallDirs)
+set(BUILD_SHARED_LIBS ON)
 
-include(ParaViewPlugins)
+find_package(ParaView REQUIRED)
 
-set(BLA_VENDOR Intel10_64lp)
-find_package(LAPACK)
+paraview_plugin_scan(
+  PLUGIN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/paraview.plugin"
+  PROVIDES_PLUGINS plugins
+  ENABLE_BY_DEFAULT ON)
+  
+paraview_plugin_build(
+  PLUGINS ${plugins})
 
-# create a paraview plugin containing server manager xml and the server
-# manager classes to build
-# this plugin can be loaded on the server side
-
-ADD_PARAVIEW_PLUGIN(SurfaceTrackerText "1.0"
-  SERVER_MANAGER_XML vtkDijkstraGraphGeodesicPath1.xml
-  SERVER_MANAGER_SOURCES vtkDijkstraGraphGeodesicPath1.cxx
-  ../Curvature/vtkCurvatures1.cxx
-  ../Curvature/vtkCurvatures1.h)
-
-TARGET_LINK_LIBRARIES(SurfaceTrackerText
-  ${DGGP_LIBRARY}
-  /usr/lib/liblapack.so
-  /usr/lib/libblas.so
-)
+paraview_add_plugin(SurfaceTrackerText
+  REQUIRED_ON_SERVER
+  VERSION "1.0"
+  MODULES SurfaceTrackerText::SurfaceTrackerTextFilter
+  MODULE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Filter/vtk.module")

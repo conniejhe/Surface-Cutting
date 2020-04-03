@@ -1,0 +1,10 @@
+NAME
+  SurfaceTrackerText
+DESCRIPTION
+  Surface tracking for surface cutting
+REQUIRES_MODULES
+  VTK::CommonExecutionModel
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersSources
