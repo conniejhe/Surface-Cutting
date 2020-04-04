@@ -4,12 +4,6 @@
 - [Surface-Cutting](#surface-cutting)
   * [Introduction](#introduction)
   * [Plugins Overview](#plugins-overview)
-    + [Curvature](#Curvature)
-    + [SurfaceTracker-TextEntry](#surfacetracker-textentry)
-    + [SurfaceTracker-ManualSelection](#surfacetracker-manualselection)
-    + [SurfaceCut-ImplicitSelectionLoop](#surfacecut-implicitselectionloop)
-    + [SurfaceCut-ConnectedComponents](#surfacecut-connectedcomponents)
-    + [SurfaceCut-BoundaryFill](#surfacecut-boundaryfill)
   * [Compiling and Loading Custom Plugins](#compiling-and-loading-custom-plugins)
 
 
@@ -57,10 +51,11 @@ This plugin calculates the curvature of the brain surface at each vertex. It imp
 <details> 
  <summary> <strong> SurfaceTracker-TextEntry </strong> </summary>
 This plugin connects two user-inputted points and has three different modes which determines how the points are connected:
-  1. **Geodesic**: uses Dijkstra's algorithm - simple shortest path dynamic programming approach
-  2. **Gyrus**: uses Dijkstra's algorithm with a modified cost function to ensure that the generated curve is along the Gyri of the brain
-  3. **Sulcus**: similar idea as Gyrus but for sulci
-
+  <ol>
+   <li> <strong> Geodesic </strong>: uses Dijkstra's algorithm - simple shortest path dynamic programming approach </li>
+   <li> <strong> Gyrus </strong>: uses Dijkstra's algorithm with a modified cost function to ensure that the generated curve is along the Gyri of the brain </li>
+   <li> <strong> Sulcus </strong>: similar idea as Gyrus but for sulci </li>
+ </ol>
 Paraview has an existing filter that calculates geodesic shortest path using Dijkstra's algorithm on a graph which much of the code was based on. The original filter source code can be found here: https://github.com/Kitware/VTK/blob/master/Filters/Modeling/vtkDijkstraGraphGeodesicPath.cxx, along with the documentation here: https://vtk.org/doc/nightly/html/classvtkDijkstraGraphGeodesicPath.html
   
   **Input**: 
