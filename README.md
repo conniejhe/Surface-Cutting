@@ -143,6 +143,8 @@ This plugin is similar in the functionality to the two previous SurfaceCut plugi
 **Notes**:
  - This method is the most effective surface cut algorithm that I've experimented with so far.
  - It is effective in clipping the desired region most of time and completes within a second.
+ 
+</details>
 
 ## Compiling and Loading Custom Plugins ##
 Before using one of these plugins, you must compile them into a build directory.
