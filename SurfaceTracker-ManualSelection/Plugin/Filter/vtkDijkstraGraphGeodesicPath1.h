@@ -34,8 +34,9 @@
 #ifndef vtkDijkstraGraphGeodesicPath1_h
 #define vtkDijkstraGraphGeodesicPath1_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
+#include "vtkPolyDataAlgorithm.h"
 #include "vtkGraphGeodesicPath.h"
+
 
 class vtkDijkstraGraphInternals;
 class vtkIdList;
@@ -49,7 +50,7 @@ class vtkIdList;
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
-class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath1 :
+class VTK_EXPORT vtkDijkstraGraphGeodesicPath1 :
                            public vtkGraphGeodesicPath
 {
 public:
