@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "../Curvature/vtkCurvatures1.h"
+#include "../../../Curvature/vtkCurvatures1.h"
 #include <string>
 
 using std::string;
@@ -297,7 +297,7 @@ void vtkDijkstraGraphGeodesicPath1::BuildAdjacency(vtkDataSet *inData)
     // TODO: All types
     if (ctype == VTK_POLYGON || ctype == VTK_TRIANGLE || ctype == VTK_LINE)
     {
-      vtkIdType *pts;
+      const vtkIdType *pts;
       vtkIdType npts;
       pd->GetCellPoints(i, npts, pts);
       double cost;

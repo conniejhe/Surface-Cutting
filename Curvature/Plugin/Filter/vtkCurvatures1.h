@@ -36,7 +36,7 @@ class VTK_EXPORT vtkCurvatures1 : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCurvatures1,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Construct with curvature type set to Gauss
@@ -92,7 +92,7 @@ protected:
   ~vtkCurvatures1() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 
   // Description: Principal Curvatures

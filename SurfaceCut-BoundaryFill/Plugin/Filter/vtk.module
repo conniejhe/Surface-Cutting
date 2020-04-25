@@ -1,7 +1,7 @@
 NAME
-  SurfaceTrackerText::SurfaceTrackerTextFilter
+  surfaceCut::surfaceCutFilter
 LIBRARY_NAME
-  vtkDijkstraGraphGeodesicPath1
+  surfaceCut
 DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS

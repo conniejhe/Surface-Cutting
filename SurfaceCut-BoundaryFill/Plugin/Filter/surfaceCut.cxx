@@ -179,7 +179,7 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
 
     for (vtkIdType f = 0; f < F; f++) {
         vtkIdType npts;
-        vtkIdType* pts;
+        const vtkIdType* pts;
 
         in->GetCellPoints(f, npts, pts);
         a = pts[0];
@@ -236,7 +236,7 @@ void surfaceCut::BuildAdjacency(vtkDataSet *inData)
     // TODO: All types
     if (ctype == VTK_POLYGON || ctype == VTK_TRIANGLE || ctype == VTK_LINE)
     {
-      vtkIdType *pts;
+      const vtkIdType *pts;
       vtkIdType npts;
       pd->GetCellPoints(i, npts, pts);
       double cost;

@@ -1,0 +1,10 @@
+NAME
+  myCurvature
+DESCRIPTION
+  Curvature calculation
+REQUIRES_MODULES
+  VTK::CommonExecutionModel
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersSources
