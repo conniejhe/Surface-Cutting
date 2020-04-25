@@ -1,0 +1,13 @@
+NAME
+  SurfaceTrackerManual::SurfaceTrackerManualFilter
+LIBRARY_NAME
+  vtkMyDGGP
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  ParaView::RemotingCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersModeling
+  VTK::FiltersSources
