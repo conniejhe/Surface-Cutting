@@ -17,7 +17,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
 
 set(BLA_VENDOR Intel10_64lp)
-find_package(libLAPACK REQUIRED)
+find_package(BLAS REQUIRED
+    HINTS ${BLAS_DIR} /System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework $ENV{BLAS_DIR}
+)
 
 set("_paraview_plugin_default_${CMAKE_PROJECT_NAME}" ON)
 paraview_plugin_scan(
