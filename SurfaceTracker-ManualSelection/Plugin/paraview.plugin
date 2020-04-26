@@ -7,4 +7,5 @@ REQUIRES_MODULES
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersCore
+  VTK::FiltersModeling
   VTK::FiltersSources
