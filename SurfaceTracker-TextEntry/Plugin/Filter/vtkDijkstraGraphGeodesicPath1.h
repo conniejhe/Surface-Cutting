@@ -50,7 +50,7 @@ class vtkIdList;
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
-class VTK_EXPORT vtkDijkstraGraphGeodesicPath1 :
+class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath1 :
                            public vtkGraphGeodesicPath
 {
 public:
