@@ -18,7 +18,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkGraphGeodesicPath.h"
-#include "../../../SurfaceTracker-TextEntry/Plugin/Filter/vtkDijkstraGraphGeodesicPath1.h"
+#include "./vtkDijkstraGraphGeodesicPath1.h"
 
 class vtkIdList;
 
