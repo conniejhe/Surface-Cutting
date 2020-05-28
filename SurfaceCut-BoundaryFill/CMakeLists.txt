@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+set(CMAKE_MACOSX_RPATH 1)
+
 if (NOT ParaView_BINARY_DIR)
   find_package(ParaView REQUIRED)
   include(${PARAVIEW_USE_FILE})
