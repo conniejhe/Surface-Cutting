@@ -8,3 +8,4 @@ REQUIRES_MODULES
   VTK::CommonDataModel
   VTK::FiltersCore
   VTK::FiltersSources
+  VTK::FiltersModeling

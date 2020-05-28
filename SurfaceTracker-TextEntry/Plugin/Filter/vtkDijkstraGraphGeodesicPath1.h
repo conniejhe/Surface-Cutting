@@ -34,9 +34,8 @@
 #ifndef vtkDijkstraGraphGeodesicPath1_h
 #define vtkDijkstraGraphGeodesicPath1_h
 
-#include "vtkPolyDataAlgorithm.h"
 #include "vtkGraphGeodesicPath.h"
-
+#include "vtkFiltersModelingModule.h"
 
 class vtkDijkstraGraphInternals;
 class vtkIdList;

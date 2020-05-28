@@ -146,7 +146,7 @@ void vtkCurvatures1::genNeighborhoods(vtkDataSet *inData, int ndepth) {
     // iterate through cells on mesh
     for (i = 0; i < ncells; i++) {
         vtkIdType npts;
-        vtkIdType* pts;
+        const vtkIdType* pts;
 
         // extract vertices that comprise current cell
         pd->GetCellPoints(i, npts, pts);
