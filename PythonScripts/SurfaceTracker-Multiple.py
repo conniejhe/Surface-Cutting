@@ -1,5 +1,6 @@
 #### import the simple module from the paraview
 from paraview.simple import *
+import time
 #### disable automatic camera reset on 'Show'
 paraview.simple._DisableFirstRenderCameraReset()
 
@@ -7,12 +8,12 @@ paraview.simple._DisableFirstRenderCameraReset()
 proxy = GetActiveSource()
 
 if proxy is None:
-   print "Proxy is None"   
+   print("Proxy is None")
 
 active_selection = proxy.GetSelectionInput(proxy.Port)
 
 if active_selection is None:
-   print "No selection is active"
+   print("No selection is active")
 
 #initialize array for selected points
 length = len(active_selection.IDs)
@@ -21,7 +22,9 @@ for i in range(1, length, 2):
     id1 = active_selection.IDs[i]
     id2 = active_selection.IDs[(i+2) % length]
     query1 = "(id == " + str(id1) + ") | " + "(id == " + str(id2) + ") "
-    selection = SelectPoints(query = query1)
+    # print(query1)
+    selection = SelectPoints(query1)
+    ClearSelection()
     extractSelection = ExtractSelection(Input=proxy,
         Selection=selection)
 

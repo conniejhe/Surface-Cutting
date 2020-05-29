@@ -34,8 +34,8 @@
 #ifndef vtkDijkstraGraphGeodesicPath1_h
 #define vtkDijkstraGraphGeodesicPath1_h
 
+#include "vtkFiltersModelingModule.h" // for export macro
 #include "vtkGraphGeodesicPath.h"
-#include "vtkFiltersModelingModule.h"
 
 class vtkDijkstraGraphInternals;
 class vtkIdList;

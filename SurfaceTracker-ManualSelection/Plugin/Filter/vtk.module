@@ -1,5 +1,5 @@
 NAME
-  SurfaceTrackerManual::SurfaceTrackerManualFilter
+  SurfaceTrackerManualFilter
 LIBRARY_NAME
   vtkMyDGGP
 DEPENDS
