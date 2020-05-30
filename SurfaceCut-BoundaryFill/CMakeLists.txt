@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(surfaceCut)
+project(SurfaceCut)
 
 find_package(ParaView REQUIRED)
 

@@ -1,5 +1,5 @@
 NAME
-  surfaceCut::surfaceCutFilter
+  SurfaceCutFilter
 LIBRARY_NAME
   surfaceCut
 DEPENDS
