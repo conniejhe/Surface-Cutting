@@ -25,6 +25,11 @@ The surface cutting project consists of two different parts (and hence two main 
   2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object.
   
 All questions should be directed to Connie He (<conbonhe98@gmail.com>).
+  
+## Version Compatibility and Dependencies ##
+Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The plugins on branch 'master' are compatible with Paraview version 5.8.0 (MacOS), and the plugins on branch 'v5.6.0-modified' are compatible with Paraview version 5.6.0 (MacOS). Plugins on branch 'v5.6.0' were developed for Paraview version 5.6.0 (Linux). 
+
+The Curvature and Surface Tracking plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories (either .so or .dylib libraries should work) for your machine.
 
 ## Plugins Overview ##
 Each plugin consists of (at minimum) four different files:
