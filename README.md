@@ -3,6 +3,7 @@
 ## Table of Contents ##
 - [Surface-Cutting](#surface-cutting)
   * [Introduction](#introduction)
+  * [Version Compatibility and Dependencies](#version-compatibility-and-dependencies)
   * [Plugins Overview](#plugins-overview)
   * [Compiling and Loading Custom Plugins](#compiling-and-loading-custom-plugins)
 
@@ -32,6 +33,7 @@ Currently, the plugins have been developed to be compatible with versions 5.6.0 
 The Curvature and Surface Tracking plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories (either .so or .dylib libraries should work) for your machine.
 
 ## Plugins Overview ##
+The files required for the plugin and file hierarchy varies depending on which version of Paraview you use.
 Each plugin consists of (at minimum) four different files:
   1. Source code (.cxx file) for the filter 
   2. Source code header (.h)
@@ -168,4 +170,4 @@ The plugin will be compiled as a .so file that can be loaded into Paraview. From
 Navigate into build folder for plugin and select the .so file, and it should be good to go.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 Feb 28)
+Last Edited by: Connie He (2020 May 30)
