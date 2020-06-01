@@ -11,5 +11,4 @@ paraview_add_server_manager_xmls(
 target_link_libraries(SurfaceTrackerTextFilter PRIVATE
     /usr/local/opt/lapack/lib/libblas.dylib
     /usr/local/opt/lapack/lib//liblapack.dylib
-    -O2 BLAS LAPACK
 )
