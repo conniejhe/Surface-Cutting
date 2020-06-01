@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+# Comment the following line out if not MacOS
 set(CMAKE_MACOSX_RPATH 1)
 
 if (NOT ParaView_BINARY_DIR)
@@ -22,8 +23,10 @@ ADD_PARAVIEW_PLUGIN(SurfaceTrackerText "1.0"
   ../Curvature/vtkCurvatures1.cxx
   ../Curvature/vtkCurvatures1.h)
 
-  target_link_libraries(SurfaceTrackerText PRIVATE
-        /usr/local/opt/lapack/lib/libblas.dylib
-        /usr/local/opt/lapack/lib//liblapack.dylib
-        -O2 BLAS LAPACK
-  )
+# Change to correct paths of blas and lapack libraries
+# .so or .dylib file extensions supported
+  
+target_link_libraries(SurfaceTrackerText PRIVATE
+    /usr/local/opt/lapack/lib/libblas.dylib
+    /usr/local/opt/lapack/lib//liblapack.dylib
+)

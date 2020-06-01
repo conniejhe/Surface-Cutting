@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+# Comment the following line out if not MacOS
 set(CMAKE_MACOSX_RPATH 1)
 
 if (NOT ParaView_BINARY_DIR)
