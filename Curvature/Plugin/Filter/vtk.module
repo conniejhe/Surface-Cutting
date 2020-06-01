@@ -1,5 +1,5 @@
 NAME
-  myCurvature::myCurvatureFilter
+  myCurvatureFilter
 LIBRARY_NAME
   vtkCurvatures1
 DEPENDS

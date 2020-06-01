@@ -119,10 +119,10 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     int numIds = this->UserPoints->GetNumberOfIds();
 
-    if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
-        vtkErrorMacro("ERROR: loop is not closed");
-        return 0;
-    }
+    // if (this->UserPoints->GetId(0) != this->UserPoints->GetId(numIds - 1)) {
+    //     vtkErrorMacro("ERROR: loop is not closed");
+    //     return 0;
+    // }
 
     ColorBoundary();
 
