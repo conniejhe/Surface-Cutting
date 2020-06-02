@@ -28,11 +28,11 @@ The surface cutting project consists of two different parts (and hence two main 
 All questions should be directed to Connie He (<conbonhe98@gmail.com>).
   
 ## Version Compatibility and Dependencies ##
-Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The plugins on branch 'master' are compatible with Paraview version 5.8.0 (MacOS and Linux), and the plugins on branch 'v5.6.0-modified' are compatible with Paraview version 5.6.0 (MacOS). Plugins on branch 'v5.6.0' were developed for Paraview version 5.6.0 (Linux).
+Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The plugins on branch 'master' are compatible with Paraview version 5.8.0 (MacOS and Linux), and the plugins on branch 'v5.6.0' are compatible with Paraview version 5.6.0 (MacOS and Linux). Branch 'v5.6.0-original' is simply a copy of what the github repository looked like before I started updating the plugins to be compatible with latest version of Paraview. 
 
-The Curvature and Surface Tracking (Text and Manual) plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. 
+The Curvature and Surface Tracking (Text and Manual) plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. The directories to modify are within the target_link_libraries command in the CMake files. For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
 
-For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
+Note: You should comment out line 4 in the CMakeLists.txt file if you are not using a MacOS machine.
 
 ## Plugins Overview ##
 The files required for the plugin and file hierarchy varies depending on which version of Paraview you use.
