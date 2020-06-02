@@ -167,8 +167,8 @@ $ ccmake ..
 The ccmake interface is an iterative process in which you set the settings and run configure (c key), repeating until all values are set. Then, you can generate (g key) the make files.
 
 The ccmake interface will indicate that you need to set ParaView_DIR (path to paraview build directory) and Qt_DIR (path to Qt library). For example, the file paths specified on bofur to build the plugins originally are as follows:
- 1. ParaView_DIR: /export/bofur/akolasny/paraview/paraview_build
- 2. Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
+ 1. **ParaView_DIR:** /export/bofur/akolasny/paraview/paraview_build
+ 2. **Qt_DIR:** /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
  Once you generate the makefiles without error, you can proceed with the following command which will build the plugin in a loadable format.
  ```
@@ -178,12 +178,13 @@ The ccmake interface will indicate that you need to set ParaView_DIR (path to pa
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder. 
 
 **To load the plugin:**
+
 From the Paraview menu, select Tools => Manage Plugins... => Load New...
 
-Version 5.6.0:
+**Version 5.6.0:**
 Navigate into the build folder for plugin and select the .so or .dylib file, and it should be good to go. You can access the filter from the Filters Dropdown menu.
 
-Version 5.8.0:
+**Version 5.8.0:**
 Starting from the build folder, the loadable plugin file is located under this file path: 
 ```
 /lib/paraview-5.8/plugins/PluginName/PluginName.so
