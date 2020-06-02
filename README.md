@@ -186,7 +186,7 @@ Navigate into the build folder for plugin and select the .so or .dylib file, and
 Version 5.8.0:
 Starting from the build folder, the loadable plugin file is located under this file path: 
 ```
-/lib/paraview-5.8/plugins/PluginName/PluginName.so.
+/lib/paraview-5.8/plugins/PluginName/PluginName.so
 ```
 ------------------------------------------------------------------------------------------------------------------------------
 Last Edited by: Connie He (2020 June 1)
