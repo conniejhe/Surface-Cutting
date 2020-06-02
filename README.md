@@ -11,7 +11,7 @@
 ## Introduction ##
 This repository contains the source code for the surface cutting plugin project for Paraview. The following plugins have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: [Plugins](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source)
 
-Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: [Build and Install](https://www.paraview.org/Wiki/ParaView:Build_And_Install)
+Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: [Build and Install](https://www.paraview.org/Wiki/ParaView:Build_And_Install). Make sure to turn the 'PARAVIEW_USE_QT' and 'PARAVIEW_USE_PYTHON' variables on in ccmake.
 
 All development thus far has been done on Bofur (CIS machine), using the version of Paraview located in this path:   
 ```
@@ -28,9 +28,11 @@ The surface cutting project consists of two different parts (and hence two main 
 All questions should be directed to Connie He (<conbonhe98@gmail.com>).
   
 ## Version Compatibility and Dependencies ##
-Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The plugins on branch 'master' are compatible with Paraview version 5.8.0 (MacOS), and the plugins on branch 'v5.6.0-modified' are compatible with Paraview version 5.6.0 (MacOS). Plugins on branch 'v5.6.0' were developed for Paraview version 5.6.0 (Linux). 
+Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The plugins on branch 'master' are compatible with Paraview version 5.8.0 (MacOS and Linux), and the plugins on branch 'v5.6.0-modified' are compatible with Paraview version 5.6.0 (MacOS). Plugins on branch 'v5.6.0' were developed for Paraview version 5.6.0 (Linux).
 
-The Curvature and Surface Tracking plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories (either .so or .dylib libraries should work) for your machine.
+The Curvature and Surface Tracking (Text and Manual) plugins require Lapack and Blas as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. 
+
+For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
 
 ## Plugins Overview ##
 The files required for the plugin and file hierarchy varies depending on which version of Paraview you use.
@@ -53,6 +55,9 @@ This plugin calculates the curvature of the brain surface at each vertex. It imp
     - set voxel dimensions [dx, dy, dz] (double)
     
   **Output**: A vtkPolyData object that is the same as the input but with an extra Curvature array in Point Data. 
+
+**Notes**: 
+ - Requires Lapack as a dependency.
 </details>
 
 <details> 
@@ -77,9 +82,6 @@ Paraview has an existing filter that calculates geodesic shortest path using Dij
     - set voxel dimensions [dx, dy, dz] (double)
     
   **Output**: A set of lines corresponding to the curve generated to connect the two points.
-  
-**Notes**: 
- - May consider adding curvature filter output as an input into this plugin to reduce redundancy.
 </details>
 
 <details> 
@@ -93,16 +95,15 @@ This plugin has similar functionality to the SurfaceTracker-TextEntry plugin. Th
   - *property panel*: 
     - set line type (geodesic, gyrus, and sulcus)  
     
-  **Output**: A set of lines corresponding to the curve generated to connect the set of points.  
+  **Output**: A set of lines corresponding to the curve generated, which connecst the set of user-selected points.  
   
 **Notes**: 
  - This is supposed to work on a string of consecutive points (not just two points) so it is better than the previous method in that way. 
- - If you want to connect different segments using two different modes (geodesic, gyrus, and sulcus), you will need to use the filter twice on two different extracted point selections and then combine them later one with the "Append Geometry" filter (this is a bit of a hassle, so I will work on finding a better solution for this)
- - May set curvature filter output as an input to this plugin as well to reduce redundancy (of property panel attributes)
+ - If you want to connect different segments using two different modes (geodesic, gyrus, and sulcus), you will need to use the filter twice on two different extracted point selections and then combine them later one with the "Append Geometry" filter. However, you can use the python macros to chain some of these commands together and be more efficient.
 </details>
 
 <details> 
- <summary> <strong> SurfaceCut-ImplicitSelectionLoop </strong> </summary>
+ <summary> <strong> SurfaceCut-ImplicitSelectionLoop (Archived) </strong> </summary>
 This plugin cuts the brain surface along the curves generated by the surface tracking filter. It uses vtk filter Implicit Selection Loop along with the clip filter to extract the inner region of the loop. Documentation for implicit selection loop can be found here: https://vtk.org/doc/nightly/html/classvtkImplicitSelectionLoop.html, and this is an example using it: https://lorensen.github.io/VTKExamples/site/Cxx/PolyData/ImplicitSelectionLoop/  
 
   **Input**: 
@@ -118,7 +119,7 @@ This plugin cuts the brain surface along the curves generated by the surface tra
 </details>
 
 <details> 
- <summary> <strong> SurfaceCut-ConnectedComponents </strong> </summary>
+ <summary> <strong> SurfaceCut-ConnectedComponents (Archived) </strong> </summary>
 This plugin is similar in functionality to the SurfaceCut-ImplicitSelectionLoop plugin, but it uses a different algorithm to extract the region inside the loop. We first build an adjacency list to keep track of each vertex's neighbors. Next, we split the brain surface into two components by deleting the cells that are in contact with the vertices along the user-specified path. The plugin also takes as input a vertex that isn't inside the loop, so that we can find all reachable vertices from that outside vertex and remove those from the graph.
 
   **Input**: 
@@ -145,29 +146,47 @@ This plugin is similar in the functionality to the two previous SurfaceCut plugi
     - Output of the Surface Tracker filter (vtkPolyData) that consists of a closed loop of points
     - An inside point (vtkUnstructuredGrid): obtained by selecting a point inside of the desired region (using the interactive select points on tool) and extracting this selection  
     
-  **Output**: A vtkPolyData that is the extracted region.
+  **Output**: A vtkPolyData that corresponds to the extracted region.
   
 **Notes**:
  - This method is the most effective surface cut algorithm that I've experimented with so far.
- - It is effective in clipping the desired region most of time and completes within a second.
+ - It is effective in clipping the desired region most of the time and completes within a second.
  
 </details>
 
 ## Compiling and Loading Custom Plugins ##
-Before using one of these plugins, you must compile them into a build directory.
-All of the above plugins can be built using these commands:
+Before using one of these plugins, you must compile them into a dynamic library (.so, .dylib, or .dll).
+All of the above plugins can be built using these commands (starting from the plugin folder).
 
- 1. Make a new build directory in the plugin folder and navigate into it (should be empty)
-    1. example: cis/home/che/Documents/CPPFilterPlugin/build
- 2. Type following series of commands: ccmake .. -> c -> g -> make
-    1. will show EMPTY CACHE at first
- 3. need to set ParaView_DIR: /export/bofur/akolasny/paraview/paraview_build
- 4. need to set Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
+```
+$ mkdir build
+$ cd build
+$ ccmake ..
+```
+
+The ccmake interface is an iterative process in which you set the settings and run configure (c key), repeating until all values are set. Then, you can generate (g key) the make files.
+
+The ccmake interface will indicate that you need to set ParaView_DIR (path to paraview build directory) and Qt_DIR (path to Qt library). For example, the file paths specified on bofur to build the plugins originally are as follows:
+ 1. ParaView_DIR: /export/bofur/akolasny/paraview/paraview_build
+ 2. Qt_DIR: /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
+ 
+ Once you generate the makefiles without error, you can proceed with the following command which will build the plugin in a loadable format.
+ ```
+ $ make
+ ```
  
 These commands only need to be executed the first time you compile a plugin. Otherwise, after making modifications to the code you can compile again by just running "make" in the build folder. 
 
-The plugin will be compiled as a .so file that can be loaded into Paraview. From the Paraview menu, select Tools -> Manage Plugins... -> Load New...  
-Navigate into build folder for plugin and select the .so file, and it should be good to go.
+**To load the plugin:**
+From the Paraview menu, select Tools => Manage Plugins... => Load New...
 
+Version 5.6.0:
+Navigate into the build folder for plugin and select the .so or .dylib file, and it should be good to go. You can access the filter from the Filters Dropdown menu.
+
+Version 5.8.0:
+Starting from the build folder, the loadable plugin file is located under this file path: 
+```
+/lib/paraview-5.8/plugins/PluginName/PluginName.so.
+```
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 May 30)
+Last Edited by: Connie He (2020 June 1)
