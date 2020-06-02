@@ -10,9 +10,6 @@ endif()
 
 include(ParaViewPlugins)
 
-set(BLA_VENDOR Intel10_64lp)
-find_package(LAPACK)
-
 # create a paraview plugin containing server manager xml and the server
 # manager classes to build
 # this plugin can be loaded on the server side
@@ -25,7 +22,7 @@ ADD_PARAVIEW_PLUGIN(SurfaceTrackerText "1.0"
 
 # Change to correct paths of blas and lapack libraries
 # .so or .dylib file extensions supported
-  
+
 target_link_libraries(SurfaceTrackerText PRIVATE
     /usr/local/opt/lapack/lib/libblas.dylib
     /usr/local/opt/lapack/lib//liblapack.dylib
