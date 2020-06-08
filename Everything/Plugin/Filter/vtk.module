@@ -1,13 +1,11 @@
 NAME
-  myCurvatureFilter
-LIBRARY_NAME
-  vtkCurvatures1
+  EverythingFilter
 DEPENDS
   VTK::CommonExecutionModel
+  VTK::FiltersModeling
 PRIVATE_DEPENDS
   VTK::CommonCore
   ParaView::RemotingCore
   VTK::CommonDataModel
   VTK::FiltersCore
-  VTK::FiltersModeling
   VTK::FiltersSources
