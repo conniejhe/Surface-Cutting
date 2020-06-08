@@ -128,7 +128,7 @@ int surfaceCut::RequestData(vtkInformation* vtkNotUsed(request),
 
     BuildAdjacency(output);
 
-    FillBoundary(output, this->insidePoint, 1, 2);
+    FillBoundary(output, this->insidePoint, 1, 2, 0);
 
     CutSurface(output,data_output);
 
@@ -153,9 +153,15 @@ void surfaceCut::ColorBoundary() {
 }
 
 void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
-    int bound_color, int fill_color) {
+    int bound_color, int fill_color, int count) {
 
     vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
+    // if (count > 50) {
+    //     return;
+    // } else {
+    //     count++;
+    // }
+
     if (this->colorArray->GetValue(i) != bound_color &&
         this->colorArray->GetValue(i) != fill_color)
     {
@@ -164,7 +170,7 @@ void surfaceCut::FillBoundary(vtkDataSet *inData, vtkIdType i,
 
         for (vtkIdType n = 0; n < length; n++) {
             vtkIdType neighbor = this->adjacencyMatrix[i]->GetId(n);
-            FillBoundary(inData, neighbor, bound_color, fill_color);
+            FillBoundary(inData, neighbor, bound_color, fill_color, count);
         }
     }
 }
@@ -187,29 +193,32 @@ void surfaceCut::CutSurface(vtkPolyData* in, vtkPolyData* out) {
         c = pts[2];
 
         // keeps cell only if all three vertices are colored
+        // colors vertex if all the surrounding vertices are colored
         if (!(this->colorArray->GetValue(a)) || !(this->colorArray->GetValue(b))
             || !(this->colorArray->GetValue(c))) {
 
-            vtkIdType not_colored = 0;
-            if (!(this->colorArray->GetValue(a))) {
-                not_colored = a;
-            } else if (!(this->colorArray->GetValue(b))) {
-                not_colored = b;
-            } else {
-                not_colored = c;
-            }
+            // vtkIdType not_colored = 0;
+            // if (!(this->colorArray->GetValue(a))) {
+            //     not_colored = a;
+            // } else if (!(this->colorArray->GetValue(b))) {
+            //     not_colored = b;
+            // } else {
+            //     not_colored = c;
+            // }
+            //
+            // int num_nei = this->adjacencyMatrix[not_colored]->GetNumberOfIds();
+            // int colored_nei = 0;
+            // for (vtkIdType n = 0; n < num_nei; n++) {
+            //     if(this->colorArray->GetValue(n)) {
+            //         colored_nei++;
+            //     }
+            // }
+            //
+            // if (colored_nei < num_nei) {
+            //     in->DeleteCell(f);
+            // }
 
-            int num_nei = this->adjacencyMatrix[not_colored]->GetNumberOfIds();
-            int colored_nei = 0;
-            for (vtkIdType n = 0; n < num_nei; n++) {
-                if(this->colorArray->GetValue(n)) {
-                    colored_nei++;
-                }
-            }
-
-            if (colored_nei < num_nei) {
-                in->DeleteCell(f);
-            }
+            in->DeleteCell(f);
         }
     }
 

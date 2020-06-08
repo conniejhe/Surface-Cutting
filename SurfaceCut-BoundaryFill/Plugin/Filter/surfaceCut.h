@@ -35,7 +35,7 @@ protected:
     void ColorBoundary();
 
     void FillBoundary(vtkDataSet *inData, vtkIdType i,
-      int bound_color, int fill_color);
+      int bound_color, int fill_color, int count);
 
     void CutSurface(vtkPolyData* in, vtkPolyData* out);
 
