@@ -35,10 +35,10 @@ The Curvature and Surface Tracking (Text and Manual) filters require LAPACK and 
 ## Filters Overview ##
 The files required for the plugin and file hierarchy are dependent on which version of Paraview you use.
 Each plugin consists of (at minimum) four different files:
-  1. Source code (.cxx file) for the filter 
-  2. Source code header (.h)
-  3. Server Manager XML configuration (.xml) file which determines what properties are displayed in the property panel and the required input connections (along with what datatype they should be), essentially configures the plugin front-end
-  4. CMakeLists.txt: file contains a set of directives and instructions describing the project's source files and targets
+  1. Source code **(.cxx file)** for the filter 
+  2. Source code header **(.h file)**
+  3. Server Manager XML configuration **(.xml file)** which determines what properties are displayed in the property panel and the required input connections (along with what datatype they should be), essentially configures the plugin front-end
+  4. **CMakeLists.txt**: file contains a set of directives and instructions describing the project's source files and targets
 
 <details> 
  <summary> <strong> Curvature1 </strong> </summary>
