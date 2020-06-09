@@ -91,7 +91,7 @@ This filter has similar functionality to the Surface Tracker Text filter. The di
   - *property panel*: 
     - set line type (geodesic, gyrus, and sulcus)  
     
-  **Output**: A set of lines corresponding to the curve generated, which connecst the set of user-selected points.  
+  **Output**: A set of lines corresponding to the curve generated, which connects the set of user-selected points.  
   
 **Notes**: 
  - This is supposed to work on a string of consecutive points (not just two points) so it is better than the previous method in that way. 
