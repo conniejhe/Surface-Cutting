@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(myCurvature)
+project(CombinedFilter)
 
 find_package(ParaView REQUIRED)
 
@@ -15,9 +15,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
-
-# set(BLA_VENDOR Intel10_64lp)
-# find_package(LAPACK)
 
 set("_paraview_plugin_default_${CMAKE_PROJECT_NAME}" ON)
 paraview_plugin_scan(
