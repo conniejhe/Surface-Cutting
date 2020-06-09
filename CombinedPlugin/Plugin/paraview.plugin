@@ -1,11 +1,10 @@
 NAME
-  SurfaceTrackerManual
+  CombinedFilter
 DESCRIPTION
-  Surface tracking for surface cutting
+  Curvature calculation
 REQUIRES_MODULES
   VTK::CommonExecutionModel
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersCore
-  VTK::FiltersModeling
   VTK::FiltersSources
