@@ -1,5 +1,5 @@
 NAME
-  EverythingFilter
+  SurfaceTrackerCutPlugin
 DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersModeling
