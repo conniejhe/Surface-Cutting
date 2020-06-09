@@ -9,7 +9,7 @@
 
 
 ## Introduction ##
-This repository contains the source code for the surface cutting modules developed for Paraview. The following filters have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: [Plugins](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_plugins_to_ParaView_source).
+This repository contains the source code for the surface cutting modules developed for Paraview. The following filters have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: [Plugins (v5.6.0)](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo) and [Plugins (latest version)](https://kitware.github.io/paraview-docs/nightly/cxx/PluginHowto.html).
 
 Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: [Build and Install](https://www.paraview.org/Wiki/ParaView:Build_And_Install). Make sure to turn the 'PARAVIEW_USE_QT' and 'PARAVIEW_USE_PYTHON' variables on in ccmake.
 
@@ -28,7 +28,7 @@ The surface cutting project consists of two different parts (and hence two main 
 ## Branches and Version Compatibility ##
 Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The 'master' branch contains a single plugin (CombinedPlugin) that combines all four filters into one plugin package to be loaded into Paraview version 5.6.0. The four filters are separated into individual plugins on branch 'v5.8.0-separate' (compatible with Paraview version 5.8.0) as well as on branch 'v5.6.0' (compatible with Paraview version 5.6.0). Branch 'v5.6.0-original' is a copy of what the github repository looked like before I started updating the plugins to be compatible with latest version of Paraview. 
 
-The Curvature and Surface Tracking (Text and Manual) filters require LAPACK and BLAS as dependencies, as they utilize Lapack subroutines to perform linear algebra computations. They can be installed using homebrew. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. The directories to modify are within the target_link_libraries command in the CMake files. For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
+The Curvature and Surface Tracking (Text and Manual) filters require LAPACK and BLAS as dependencies, as they utilize LAPACK subroutines to perform linear algebra computations. They can be installed using homebrew. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. The directories to modify are within the target_link_libraries command in the CMake files. For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
 
 **Note:** You should comment out line 4 in the CMakeLists.txt file if you are not using a MacOS machine.
 
@@ -38,7 +38,7 @@ Each plugin consists of (at minimum) four different files:
   1. Source code (.cxx file) for the filter 
   2. Source code header (.h)
   3. Server Manager XML configuration (.xml) file which determines what properties are displayed in the property panel and the required input connections (along with what datatype they should be), essentially configures the plugin front-end
-  4. CMakeLists.txt: basically a make file which tells cmake which classes to build
+  4. CMakeLists.txt: file contains a set of directives and instructions describing the project's source files and targets
 
 <details> 
  <summary> <strong> Curvature1 </strong> </summary>
