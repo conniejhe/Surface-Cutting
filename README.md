@@ -128,7 +128,7 @@ $ ccmake ..
 
 The ccmake interface is an iterative process in which you set the settings and run configure (c key), repeating until all values are set. Then, you can generate (g key) the make files.
 
-The ccmake interface will indicate that you need to set ParaView_DIR (path to paraview build directory) and Qt_DIR (path to Qt library). For example, the file paths specified on bofur to build the plugins originally are as follows:
+The ccmake interface may indicate that you need to set ParaView_DIR (path to paraview build directory) and Qt_DIR (path to Qt library). For example, the file paths specified on bofur to build the plugins originally are as follows:
  1. **ParaView_DIR:** /export/bofur/akolasny/paraview/paraview_build
  2. **Qt_DIR:** /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
  
