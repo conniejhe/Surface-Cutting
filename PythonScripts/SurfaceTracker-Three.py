@@ -7,12 +7,12 @@ paraview.simple._DisableFirstRenderCameraReset()
 proxy = GetActiveSource()
 
 if proxy is None:
-   print "Proxy is None"
+   print("Proxy is None");
 
 active_selection = proxy.GetSelectionInput(proxy.Port)
 
 if active_selection is None:
-   print "No selection is active"
+   print("No selection is active");
 
 #initialize array for selected points
 length = len(active_selection.IDs)
