@@ -11,13 +11,9 @@
 ## Introduction ##
 This repository contains the source code for the surface cutting modules developed for Paraview. The following filters have been developed specifically for use by the Center of Imaging Science. All plugins were developed using Paraview's Plugin Development framework, which is described in greater detail here: [Plugins (v5.6.0)](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo) and [Plugins (latest version)](https://kitware.github.io/paraview-docs/nightly/cxx/PluginHowto.html).
 
-Developing custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: [Build and Install](https://www.paraview.org/Wiki/ParaView:Build_And_Install). Make sure to turn the 'PARAVIEW_USE_QT' and 'PARAVIEW_USE_PYTHON' variables on in ccmake.
+Developing and using custom plugins for Paraview requires a Paraview version that is compiled and built from source. Details on how to do that are here: [Build and Install](https://www.paraview.org/Wiki/ParaView:Build_And_Install). Make sure to turn the 'PARAVIEW_USE_QT' and 'PARAVIEW_USE_PYTHON' variables on in CMake.
 
-All development thus far has been done on Bofur (CIS machine), using the version of Paraview located in this path:   
-```
-$ /export/bofur/akolasny/paraview/paraview_build/bin/paraview
-```
-CIS users can access this version of Paraview (with the plugins autoloaded) using this command:
+CIS users can access Paraview, with the plugins autoloaded, using this command:
 ```
 $ paraview-connie
 ```
@@ -155,4 +151,4 @@ Starting from the build folder, the loadable plugin file is located under this f
 **Note:** The name of the filter that will appear in the Filters menu matches the name of each section in the [Filters Overview](#filters-overview) section.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 June 9)
+Last Edited by: Connie He (2020 June 11)
