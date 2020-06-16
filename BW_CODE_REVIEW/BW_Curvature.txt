@@ -40,7 +40,7 @@ int   LDC, LWORKC, NC;
 int   i,j;
 
 //-------------------------------
-Big_ass_for_loop (Hamann's Algorithm)
+Big_for_loop (Hamann's Algorithm)
 
 1. for pindx from 0 to mNumVert do
 2.    double a,b,c,d
@@ -140,7 +140,7 @@ Return correct curvature based on principal curvatures and user-selection
 76.             rval = W[0] * W[1]
 77.    rval = min(MAX_CURV, rval) // make sure you preserve signs though; MAX_CURV = 20
 78.    mCurvature[pindx] = -rval // negative because we changed signs???
-s
+
 Generate Unit Normals ()
 
 1.  if no normals
