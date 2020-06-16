@@ -1,7 +1,7 @@
 NAME
   SurfaceTrackerCut
 DESCRIPTION
-  Curvature calculation
+  Surface Tracking and Cutting Modules
 REQUIRES_MODULES
   VTK::CommonExecutionModel
   VTK::CommonCore
