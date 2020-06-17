@@ -30,7 +30,7 @@ Currently, the plugins have been developed to be compatible with versions 5.6.0 
 
 The Curvature and Surface Tracking (Text and Manual) filters require LAPACK and BLAS as dependencies, as they utilize LAPACK subroutines to perform linear algebra computations. They can be installed using homebrew. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. The directories to modify are within the target_link_libraries command in the CMake files. For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
 
-**Note:** You should comment out line 4 in the CMakeLists.txt file if you are not using a MacOS machine.
+**Note:** For paraview v5.6.0, you should comment out line 4 (set(CMAKE_MACOSX_RPATH 1)) in the CMakeLists.txt file if you are not using a MacOS machine.
 
 ## Filters Overview ##
 The files required for the plugin and file hierarchy are dependent on which version of Paraview you use.
