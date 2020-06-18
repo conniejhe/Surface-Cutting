@@ -21,12 +21,12 @@ The surface cutting project consists of two different parts (and hence two main 
   1. **Surface Tracking**: This filter allows the user to select points on the brain surface and connects them with a continuous curve to form a closed loop.
   2. **Surface Cutting**: Given a closed loop of points (obtained using the surface tracking plugin), this plugin extracts the user-selected region formed by the closed loop as a separate PolyData object.
   
-## Branches and Version Compatibility ##
+## Dependencies and Version Compatibility ##
 Currently, the plugins have been developed to be compatible with versions 5.6.0 and 5.8.0 of Paraview and for MacOS and Linux (e.g. Ubuntu) distributions. Windows is not supported as of now. The 'master' branch contains a single plugin (SurfaceTrackerCut) that combines all four filters into an all-in-one plugin package to be loaded into Paraview version 5.8.0. The four filters are separated into individual plugins on branch 'v5.8.0-separate' (compatible with Paraview version 5.8.0) as well as on branch 'v5.6.0' (compatible with Paraview version 5.6.0). Branch 'v5.6.0-original' is a copy of what the github repository looked like before I started updating the plugins to be compatible with latest version of Paraview. 
 
-The Curvature and Surface Tracking (Text and Manual) filters require LAPACK and BLAS as dependencies, as they utilize LAPACK subroutines to perform linear algebra computations. They can be installed using homebrew. Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK and BLAS installation directories for your machine. The directories to modify are within the target_link_libraries command in the CMake files. For version 5.8.0, the CMakeLists.txt file for the Curvature plugin that must be modified is under the following directory: Curvature/Plugin/Filter/CMakeLists.txt. It is similar for the Surface Tracker plugins. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
+The Curvature and Surface Tracking (Text and Manual) filters require LAPACK as a dependency, as they utilize LAPACK subroutines to perform linear algebra computations. It can be installed using homebrew (```brew install lapack```). Thus, the CMakeLists.txt files should be modified to reflect the appropriate LAPACK installation directory on your machine. The directory specification to modify is within the ```target_link_libraries``` command in the CMake files. For version 5.8.0, the relevant CMakeLists.txt file for a plugin that must be modified is located as follows: ```PluginName/Plugin/Filter/CMakeLists.txt```. For version 5.6.0, there is only one CMakeLists.txt file per plugin and that is the file in which the file should be modified.
 
-**Note:** You should comment out line 4 in the CMakeLists.txt file if you are not using a MacOS machine.
+**Note:** For paraview v5.6.0, you should comment out line 4 (set(CMAKE_MACOSX_RPATH 1)) in the CMakeLists.txt file if you are not using a MacOS machine.
 
 ## Filters Overview ##
 The files required for the plugin and file hierarchy are dependent on which version of Paraview you use.
@@ -127,8 +127,8 @@ $ ccmake ..
 The ccmake interface is an iterative process in which you set the settings and run configure (c key), repeating until all values are set. Then, you can generate (g key) the make files.
 
 The ccmake interface may indicate that you need to set ParaView_DIR (path to paraview build directory) and Qt_DIR (path to Qt library). For example, the file paths specified on bofur to build the plugins originally are as follows:
- 1. **ParaView_DIR:** /export/bofur/akolasny/paraview/paraview_build
- 2. **Qt_DIR:** /usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5
+ 1. **ParaView_DIR:** ```/export/bofur/akolasny/paraview/paraview_build```
+ 2. **Qt_DIR:** ```/usr/local/qt/Qt-5.11.2/5.11.2/gcc_64/lib/cmake/Qt5```
  
  Once you generate the makefiles without error, you can proceed with the following command which will build the plugin in a loadable format.
  ```
@@ -153,4 +153,4 @@ Starting from the build folder, the loadable plugin file is located under this f
 **Note:** The name of the filter that will appear in the Filters menu matches the name of each section in the [Filters Overview](#filters-overview) section.
 
 ------------------------------------------------------------------------------------------------------------------------------
-Last Edited by: Connie He (2020 June 11)
+Last Edited by: Connie He (2020 June 17)
