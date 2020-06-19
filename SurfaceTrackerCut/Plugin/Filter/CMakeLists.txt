@@ -11,6 +11,5 @@ paraview_add_server_manager_xmls(
 # .so or .dylib file extensions supported
 
 target_link_libraries(SurfaceTrackerCutPlugin PRIVATE
-    /usr/local/opt/lapack/lib/libblas.dylib
     /usr/local/opt/lapack/lib//liblapack.dylib
 )
