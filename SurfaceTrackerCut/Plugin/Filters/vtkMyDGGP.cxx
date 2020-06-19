@@ -102,7 +102,7 @@ int vtkMyDGGP::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < origIds->GetNumberOfTuples(); i++) {
       this->UserPoints->InsertNextId(origIds->GetValue(i));
-      cout << origIds->GetValue(i) << endl;
+      // cout << origIds->GetValue(i) << endl;
   }
   //appender to collect all geodesic paths
   vtkSmartPointer<vtkAppendPolyData> appender =
