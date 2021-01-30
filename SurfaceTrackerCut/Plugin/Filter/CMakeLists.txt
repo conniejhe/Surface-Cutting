@@ -7,9 +7,10 @@ vtk_module_add_module(SurfaceTrackerCutPlugin
 paraview_add_server_manager_xmls(
   XMLS  vtkCurvatures1.xml vtkDijkstraGraphGeodesicPath1.xml vtkMyDGGP.xml surfaceCut.xml)
 
-# Change to correct paths of blas and lapack libraries
-# .so or .dylib file extensions supported
-
-target_link_libraries(SurfaceTrackerCutPlugin PRIVATE
-    /usr/local/opt/lapack/lib/liblapack.dylib
-)
+find_package(LAPACK REQUIRED)
+vtk_module_link(SurfaceTrackerCutPlugin
+  PRIVATE ${LAPACK_LIBRARIES})
+if (LAPACK_LINKER_FLAGS)
+  vtk_module_link_options(SurfaceTrackerCutPlugin
+    PRIVATE ${LAPACK_LINKER_FLAGS})
+endif()
